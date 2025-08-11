@@ -92,9 +92,15 @@
         import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global variables for Firebase configuration and app details
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
+        const firebaseConfig = {
+  apiKey: "AIzaSyC2yY5dAYwQA4IOB5f-fBF_UHNQZseGumY",
+  authDomain: "mployhr-recruitment-dashboard.firebaseapp.com",
+  projectId: "mployhr-recruitment-dashboard",
+  storageBucket: "mployhr-recruitment-dashboard.firebasestorage.app",
+  messagingSenderId: "736940004987",
+  appId: "1:736940004987:web:5fec3950310a7912c7f4de",
+  measurementId: "G-ZWQE1FVHY4"
+};
 
         // UI elements
         const loadingSpinner = document.getElementById('loading-spinner');

@@ -34,10 +34,6 @@
         <div class="max-w-7xl mx-auto">
             <h1 class="text-4xl font-extrabold text-center text-gray-900 mb-2">MPloyHR Recruitment Dashboard</h1>
 
-            <div id="user-id-display" class="mb-6 text-center text-sm text-gray-500 hidden">
-                Current User ID: <span id="user-id" class="font-mono text-gray-700"></span>
-            </div>
-
             <div class="flex justify-center mb-8">
                 <button id="kpis-tab" class="tab-button px-6 py-2 rounded-l-full font-semibold bg-indigo-600 text-white shadow-lg" data-tab="kpis">
                     Weekly KPI Dashboard
@@ -47,100 +43,41 @@
                 </button>
             </div>
 
-            <div id="loading-spinner" class="flex justify-center items-center h-64">
-                <svg class="animate-spin h-10 w-10 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <p class="ml-4 text-lg">Loading dashboard data...</p>
-            </div>
-
-            <div id="error-message" class="hidden text-center p-6 bg-red-100 text-red-700 border-l-4 border-red-500 rounded-md shadow-md">
-                <h4 class="font-bold">Error</h4>
-                <p id="error-text"></p>
-            </div>
-
-            <div id="dashboard-content" class="fade-in hidden">
+            <div id="dashboard-content" class="fade-in">
                 <div id="kpis-dashboard">
                     <div id="kpi-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- KPI cards will be injected here -->
-                    </div>
-                    <div id="leaderboard-container" class="mt-12">
-                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Leaderboard</h2>
-                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-lg mx-auto">
-                            <ul id="leaderboard-list" class="space-y-4">
-                                <!-- Leaderboard list will be injected here -->
-                            </ul>
-                        </div>
+                        <!-- KPI cards will be dynamically rendered here -->
                     </div>
                 </div>
 
                 <div id="new-starters-dashboard" class="hidden">
                     <p class="text-center text-sm text-gray-500 mb-6">Note: This is a **monthly** dashboard. Fallouts are defined as staff leaving within **30 days** of their commencement date.</p>
                     <div id="new-starters-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- New Starters cards will be injected here -->
+                        <!-- New Starters cards will be dynamically rendered here -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // ----- PASTE YOUR FIREBASE CONFIGURATION HERE -----
-        // Get this code from your Firebase project settings.
-        // It will look like this:
-        // const firebaseConfig = {
-        //   apiKey: "your-api-key",
-        //   authDomain: "your-project-id.firebaseapp.com",
-        //   projectId: "your-project-id",
-        //   storageBucket: "your-storage-bucket",
-        //   messagingSenderId: "your-sender-id",
-        //   appId: "your-app-id"
-        // };
-        // ---------------------------------------------------
-        const firebaseConfig = {
-            apiKey: "AIzaSyC2yY5dAYwQA4IOB5f-fBF_UHNQZseGumY",
-            authDomain: "mployhr-recruitment-dashboard.firebaseapp.com",
-            projectId: "mployhr-recruitment-dashboard",
-            storageBucket: "mployhr-recruitment-dashboard.firebasestorage.app",
-            messagingSenderId: "736940004987",
-            appId: "1:736940004987:web:5fec3950310a7912c7f4de",
-            measurementId: "G-ZWQE1FVHY4"
+    <script>
+        const kpiTargets = {
+            applicationScreening: 4,
+            leadGeneration: 10,
+            zoomInterviews: 15,
+            profileCreation: 100,
+            endorsedCandidates: 5,
         };
-        const appId = "mployhr-recruitment-dashboard";
-        const initialAuthToken = "";
-
-
-        // UI elements
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const dashboardContent = document.getElementById('dashboard-content');
-        const errorMessage = document.getElementById('error-message');
-        const errorText = document.getElementById('error-text');
-        const userIdDisplay = document.getElementById('user-id-display');
-        const userIdSpan = document.getElementById('user-id');
-        const kpisTab = document.getElementById('kpis-tab');
-        const newStartersTab = document.getElementById('new-starters-tab');
-        const kpisDashboard = document.getElementById('kpis-dashboard');
-        const newStartersDashboard = document.getElementById('new-starters-dashboard');
-        const kpiCardsContainer = document.getElementById('kpi-cards-container');
-        const leaderboardList = document.getElementById('leaderboard-list');
-        const newStartersCardsContainer = document.getElementById('new-starters-cards-container');
-
-        // Initial state data
-        const initialTeam = [
-            { name: 'Cath', applicationScreening: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0, leadGeneration: 0 },
-            { name: 'Jade', applicationScreening: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0, leadGeneration: 0 },
-            { name: 'Lorenz', applicationScreening: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0, leadGeneration: 0 },
-            { name: 'Marvin', applicationScreening: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0, leadGeneration: 0 },
-            { name: 'Jewel', applicationScreening: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0, leadGeneration: 0 },
+        
+        const initialTeamData = [
+            { name: 'Cath', applicationScreening: 0, leadGeneration: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0 },
+            { name: 'Jade', applicationScreening: 0, leadGeneration: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0 },
+            { name: 'Lorenz', applicationScreening: 0, leadGeneration: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0 },
+            { name: 'Marvin', applicationScreening: 0, leadGeneration: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0 },
+            { name: 'Jewel', applicationScreening: 0, leadGeneration: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0 },
         ];
-
-        const initialNewStarters = [
+        
+        const initialNewStartersData = [
             { name: 'Cath', newStarters: 0, fallOuts: 0 },
             { name: 'Jade', newStarters: 0, fallOuts: 0 },
             { name: 'Lorenz', newStarters: 0, fallOuts: 0 },
@@ -148,31 +85,15 @@
             { name: 'Jewel', newStarters: 0, fallOuts: 0 },
         ];
 
-        const kpiTargets = {
-            applicationScreening: 4,
-            zoomInterviews: 15,
-            profileCreation: 100,
-            endorsedCandidates: 5,
-            leadGeneration: 10,
-        };
-        
-        let db;
-        let auth;
-        let userId;
-        let kpiData = [];
-        let previousKpiData = [];
-        let newStartersData = [];
+        let currentKpiData = JSON.parse(localStorage.getItem('kpiData')) || initialTeamData;
+        let currentNewStartersData = JSON.parse(localStorage.getItem('newStartersData')) || initialNewStartersData;
 
-        function showLoading(show) {
-            loadingSpinner.style.display = show ? 'flex' : 'none';
-            dashboardContent.style.display = show ? 'none' : 'block';
-        }
-
-        function showError(message) {
-            errorText.textContent = message;
-            errorMessage.style.display = 'block';
-            loadingSpinner.style.display = 'none';
-        }
+        const kpisTab = document.getElementById('kpis-tab');
+        const newStartersTab = document.getElementById('new-starters-tab');
+        const kpisDashboard = document.getElementById('kpis-dashboard');
+        const newStartersDashboard = document.getElementById('new-starters-dashboard');
+        const kpiCardsContainer = document.getElementById('kpi-cards-container');
+        const newStartersCardsContainer = document.getElementById('new-starters-cards-container');
 
         function getKPIStatus(kpiKey, value) {
             const target = kpiTargets[kpiKey];
@@ -188,45 +109,7 @@
                 return 'bg-red-500';
             }
         }
-
-        function calculateScore(member) {
-            let score = 0;
-            const kpis = Object.keys(kpiTargets);
-            kpis.forEach(kpiKey => {
-                const value = member[kpiKey] || 0;
-                const target = kpiTargets[kpiKey];
-                if (kpiKey === 'applicationScreening') {
-                    score += Math.max(0, 1 - (value / target));
-                } else if (kpiKey === 'profileCreation') {
-                    score += value >= target ? 1 : 0;
-                } else {
-                    score += Math.min(1, value / target);
-                }
-            });
-            return (score / kpis.length) * 100;
-        }
-
-        function getTrendIcon(member, kpiKey) {
-            const prevMember = previousKpiData.find(p => p.name === member.name);
-            if (!prevMember || prevMember[kpiKey] === undefined) {
-                return '';
-            }
-            const prevValue = prevMember[kpiKey];
-            const currentValue = member[kpiKey];
-
-            let iconClass = '';
-            if (kpiKey === 'applicationScreening') {
-                if (currentValue < prevValue) iconClass = 'fas fa-arrow-up text-green-500';
-                else if (currentValue > prevValue) iconClass = 'fas fa-arrow-down text-red-500';
-                else iconClass = 'fas fa-minus text-gray-500';
-            } else {
-                if (currentValue > prevValue) iconClass = 'fas fa-arrow-up text-green-500';
-                else if (currentValue < prevValue) iconClass = 'fas fa-arrow-down text-red-500';
-                else iconClass = 'fas fa-minus text-gray-500';
-            }
-            return `<i class="${iconClass} ml-2"></i>`;
-        }
-
+        
         function calculateFalloutRate(newStarters, fallOuts) {
             if (newStarters === 0) return 0;
             return (fallOuts / newStarters) * 100;
@@ -239,18 +122,17 @@
         }
         
         function renderKpiDashboard() {
-            kpiCardsContainer.innerHTML = kpiData.map(member => `
+            kpiCardsContainer.innerHTML = currentKpiData.map(member => `
                 <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
                     <div class="flex items-center mb-4">
                         <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
                         <h3 class="text-xl font-bold text-gray-800">${member.name}</h3>
                     </div>
                     <div class="flex-1 space-y-4">
-                        ${Object.keys(member).filter(key => key !== 'name').map(kpiKey => `
+                        ${Object.keys(kpiTargets).map(kpiKey => `
                             <div class="flex items-center justify-between">
                                 <span class="text-gray-600 font-medium capitalize flex items-center">
                                     ${kpiKey.replace(/([A-Z])/g, ' $1')}
-                                    ${getTrendIcon(member, kpiKey)}
                                 </span>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-sm text-gray-500">
@@ -270,36 +152,21 @@
                     </div>
                 </div>
             `).join('');
-
-            const sortedKpis = [...kpiData].sort((a, b) => calculateScore(b) - calculateScore(a));
-            leaderboardList.innerHTML = sortedKpis.map((member, index) => `
-                <li class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${index < 3 ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-gray-50'}">
-                    <div class="flex items-center">
-                        <span class="font-extrabold text-xl mr-4 ${index === 0 ? 'text-indigo-600' : index === 1 ? 'text-indigo-500' : index === 2 ? 'text-indigo-400' : 'text-gray-400'}">#${index + 1}</span>
-                        <span class="font-semibold text-gray-700">${member.name}</span>
-                    </div>
-                    <div class="flex items-center">
-                        ${index < 3 ? `<i class="fas fa-award w-5 h-5 mr-2 ${index === 0 ? 'text-yellow-500' : 'text-gray-400'}"></i>` : ''}
-                        <span class="text-xl font-bold text-gray-900">
-                            ${calculateScore(member).toFixed(0)}%
-                        </span>
-                    </div>
-                </li>
-            `).join('');
             
             kpiCardsContainer.querySelectorAll('input').forEach(input => {
                 input.addEventListener('input', (e) => {
                     const name = e.target.dataset.name;
                     const kpiKey = e.target.dataset.kpi;
                     const value = parseInt(e.target.value, 10) || 0;
-                    kpiData = kpiData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
+                    currentKpiData = currentKpiData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
+                    e.target.nextElementSibling.classList = `w-3 h-3 rounded-full ${getKPIStatus(kpiKey, value)}`;
+                    localStorage.setItem('kpiData', JSON.stringify(currentKpiData));
                 });
-                input.addEventListener('blur', updateKpiInFirestore);
             });
         }
 
         function renderNewStartersDashboard() {
-            newStartersCardsContainer.innerHTML = newStartersData.map(member => `
+            newStartersCardsContainer.innerHTML = currentNewStartersData.map(member => `
                 <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
                     <div class="flex items-center mb-4">
                         <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
@@ -345,30 +212,17 @@
                     const name = e.target.dataset.name;
                     const kpiKey = e.target.dataset.kpi;
                     const value = parseInt(e.target.value, 10) || 0;
-                    newStartersData = newStartersData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
+                    currentNewStartersData = currentNewStartersData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
+                    const falloutRateSpan = e.target.closest('.space-y-4').querySelector('.text-xl.font-bold');
+                    const newRate = calculateFalloutRate(
+                      currentNewStartersData.find(m => m.name === name).newStarters,
+                      currentNewStartersData.find(m => m.name === name).fallOuts
+                    ).toFixed(1);
+                    falloutRateSpan.textContent = `${newRate}%`;
+                    falloutRateSpan.classList = `text-xl font-bold ${getRateColor(parseFloat(newRate))}`;
+                    localStorage.setItem('newStartersData', JSON.stringify(currentNewStartersData));
                 });
-                input.addEventListener('blur', updateNewStartersInFirestore);
             });
-        }
-        
-        async function updateKpiInFirestore() {
-            if (!db || !userId) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'kpi_dashboard', 'team_data');
-            try {
-                await updateDoc(docRef, { current_week_data: kpiData });
-            } catch (e) {
-                console.error("Error updating KPI document: ", e);
-            }
-        }
-        
-        async function updateNewStartersInFirestore() {
-            if (!db || !userId) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'new_starters_dashboard', 'team_data');
-            try {
-                await updateDoc(docRef, { team: newStartersData });
-            } catch (e) {
-                console.error("Error updating New Starters document: ", e);
-            }
         }
         
         function switchTab(tabId) {
@@ -379,6 +233,7 @@
                 newStartersTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
                 kpisDashboard.classList.remove('hidden');
                 newStartersDashboard.classList.add('hidden');
+                renderKpiDashboard();
             } else {
                 newStartersTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
                 newStartersTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
@@ -386,73 +241,15 @@
                 kpisTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
                 newStartersDashboard.classList.remove('hidden');
                 kpisDashboard.classList.add('hidden');
+                renderNewStartersDashboard();
             }
         }
 
-        window.onload = async () => {
-            if (!firebaseConfig.apiKey) {
-                showError("Firebase config is missing. Please check your environment.");
-                return;
-            }
-
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        userIdSpan.textContent = userId;
-                        userIdDisplay.classList.remove('hidden');
-                        
-                        const kpiDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'kpi_dashboard', 'team_data');
-                        onSnapshot(kpiDocRef, (docSnap) => {
-                            if (docSnap.exists()) {
-                                const data = docSnap.data();
-                                kpiData = data.current_week_data || initialTeam;
-                                previousKpiData = data.previous_week_data || initialTeam;
-                                renderKpiDashboard();
-                            } else {
-                                setDoc(kpiDocRef, { current_week_data: initialTeam, previous_week_data: initialTeam });
-                            }
-                            showLoading(false);
-                        }, (err) => {
-                            showError("Failed to fetch KPI dashboard data: " + err.message);
-                        });
-                        
-                        const newStartersDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'new_starters_dashboard', 'team_data');
-                        onSnapshot(newStartersDocRef, (docSnap) => {
-                            if (docSnap.exists()) {
-                                const data = docSnap.data();
-                                newStartersData = data.team || initialNewStarters;
-                                renderNewStartersDashboard();
-                            } else {
-                                setDoc(newStartersDocRef, { team: initialNewStarters });
-                            }
-                            showLoading(false);
-                        }, (err) => {
-                            showError("Failed to fetch New Starters dashboard data: " + err.message);
-                        });
-                    } else {
-                        try {
-                            if (initialAuthToken) {
-                                await signInWithCustomToken(auth, initialAuthToken);
-                            } else {
-                                await signInAnonymously(auth);
-                            }
-                        } catch (e) {
-                            showError("Failed to sign in: " + e.message);
-                        }
-                    }
-                });
-
-                kpisTab.addEventListener('click', () => switchTab('kpis'));
-                newStartersTab.addEventListener('click', () => switchTab('new-starters'));
-
-            } catch (e) {
-                showError("Failed to initialize Firebase: " + e.message);
-            }
+        window.onload = () => {
+            renderKpiDashboard();
+            renderNewStartersDashboard();
+            kpisTab.addEventListener('click', () => switchTab('kpis'));
+            newStartersTab.addEventListener('click', () => switchTab('new-starters'));
         };
     </script>
 </body>

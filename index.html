@@ -7,6 +7,8 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <!-- Chart.js CDN for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -44,19 +46,6 @@
             90% { opacity: 1; }
             100% { opacity: 0; }
         }
-        @media print {
-            body > * {
-                display: none !important;
-            }
-            body #dashboard-content {
-                display: block !important;
-            }
-            body #kpis-dashboard, 
-            body #new-starters-dashboard, 
-            body #time-to-endorse-dashboard {
-                display: block !important;
-            }
-        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -64,24 +53,24 @@
         <div class="max-w-7xl mx-auto">
             <h1 class="text-4xl font-extrabold text-center text-gray-900 mb-2">MPloyHR Recruitment Dashboard</h1>
 
-            <div class="flex justify-center mb-8">
+            <div class="flex justify-center mb-8 tab-buttons">
                 <button id="kpis-tab" class="tab-button px-6 py-2 rounded-l-full font-semibold bg-indigo-600 text-white shadow-lg" data-tab="kpis">
                     Weekly KPI Dashboard
                 </button>
                 <button id="new-starters-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100" data-tab="new-starters">
                     New Starters Dashboard
                 </button>
-                <button id="time-to-endorse-tab" class="tab-button px-6 py-2 rounded-r-full font-semibold bg-white text-gray-700 hover:bg-gray-100" data-tab="time-to-endorse">
+                <button id="time-to-endorse-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100" data-tab="time-to-endorse">
                     Time to Endorse
+                </button>
+                <button id="reporting-tab" class="tab-button px-6 py-2 rounded-r-full font-semibold bg-white text-gray-700 hover:bg-gray-100" data-tab="reporting">
+                    Reporting
                 </button>
             </div>
 
             <div id="dashboard-content" class="fade-in">
                 <!-- Weekly KPI Dashboard -->
                 <div id="kpis-dashboard">
-                    <button onclick="window.print()" class="print-button bg-gray-200 text-gray-700 px-4 py-2 rounded-md font-semibold hover:bg-gray-300 transition-colors duration-200 mb-6">
-                        <i class="fas fa-print mr-2"></i> Print Dashboard
-                    </button>
                     <div id="kpi-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- KPI cards will be dynamically rendered here -->
                     </div>
@@ -97,9 +86,6 @@
 
                 <!-- New Starters Dashboard -->
                 <div id="new-starters-dashboard" class="hidden">
-                    <button onclick="window.print()" class="print-button bg-gray-200 text-gray-700 px-4 py-2 rounded-md font-semibold hover:bg-gray-300 transition-colors duration-200 mb-6">
-                        <i class="fas fa-print mr-2"></i> Print Dashboard
-                    </button>
                     <p class="text-center text-sm text-gray-500 mb-6">Note: This is a **monthly** dashboard. Fallouts are defined as staff leaving within **30 days** of their commencement date.</p>
                     <div id="new-starters-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- New Starters cards will be dynamically rendered here -->
@@ -116,12 +102,9 @@
 
                 <!-- Time to Endorse Dashboard -->
                 <div id="time-to-endorse-dashboard" class="hidden">
-                    <button onclick="window.print()" class="print-button bg-gray-200 text-gray-700 px-4 py-2 rounded-md font-semibold hover:bg-gray-300 transition-colors duration-200 mb-6">
-                        <i class="fas fa-print mr-2"></i> Print Dashboard
-                    </button>
                     <div class="max-w-xl mx-auto">
                         <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Time to Endorse</h2>
-                        <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+                        <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 print-hidden">
                             <div class="flex flex-col items-center mb-6">
                                 <p class="text-lg text-gray-600 mb-2">Team Average Endorsement Time</p>
                                 <span id="average-endorsement-time" class="text-6xl font-extrabold text-indigo-600">0.0 Days</span>
@@ -155,6 +138,27 @@
                     </div>
                 </div>
                 
+                <!-- Reporting Dashboard -->
+                <div id="reporting-dashboard" class="hidden">
+                    <div class="max-w-5xl mx-auto space-y-12">
+                        <!-- KPI Scores Chart -->
+                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                            <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Weekly KPI Scores</h3>
+                            <canvas id="kpi-scores-chart"></canvas>
+                        </div>
+                        <!-- New Starters vs Fallouts Chart -->
+                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                            <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Monthly New Starters vs. Fallouts</h3>
+                            <canvas id="new-starters-chart"></canvas>
+                         </div>
+                         <!-- Time to Endorse Chart -->
+                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                            <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Average Time to Endorse (Days)</h3>
+                            <canvas id="endorsement-time-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -206,9 +210,11 @@
         const kpisTab = document.getElementById('kpis-tab');
         const newStartersTab = document.getElementById('new-starters-tab');
         const timeToEndorseTab = document.getElementById('time-to-endorse-tab');
+        const reportingTab = document.getElementById('reporting-tab');
         const kpisDashboard = document.getElementById('kpis-dashboard');
         const newStartersDashboard = document.getElementById('new-starters-dashboard');
         const timeToEndorseDashboard = document.getElementById('time-to-endorse-dashboard');
+        const reportingDashboard = document.getElementById('reporting-dashboard');
         const kpiCardsContainer = document.getElementById('kpi-cards-container');
         const leaderboardList = document.getElementById('leaderboard-list');
         const newStartersCardsContainer = document.getElementById('new-starters-cards-container');
@@ -223,7 +229,7 @@
         const receivedDateInput = document.getElementById('received-date-input');
         const endorsedDateInput = document.getElementById('endorsed-date-input');
         
-        // A variable to store which endorsement is being edited
+        let kpiScoresChart, newStartersChart, endorsementTimeChart;
         let editingIndex = -1;
 
         // Helper function to show a temporary message box
@@ -301,7 +307,6 @@
             return (fallOuts / newStarters) * 100;
         }
 
-        // New function to calculate a score for the New Starters Leaderboard
         function calculateNewStarterScore(member) {
             return member.newStarters - member.fallOuts;
         }
@@ -312,7 +317,6 @@
             return 'text-red-600';
         }
 
-        // Calculates the average endorsement time for a specific recruiter
         function calculateRecruiterAverageTime(recruiterName) {
             const recruiterEndorsements = currentEndorsementData.filter(item => item.recruiterName === recruiterName);
             if (recruiterEndorsements.length === 0) return 0;
@@ -320,7 +324,6 @@
             return totalTime / recruiterEndorsements.length;
         }
 
-        // Calculates the total average endorsement time for the entire team
         function calculateTeamAverageTime(endorsementData) {
             if (endorsementData.length === 0) return 0;
             const totalTime = endorsementData.reduce((sum, item) => sum + item.endorsementTime, 0);
@@ -396,7 +399,11 @@
                     }
 
                     localStorage.setItem('kpiData', JSON.stringify(currentKpiData));
-                    renderLeaderboard(); // Re-render leaderboard on change
+                    renderLeaderboard();
+                    // Re-render charts
+                    if (document.getElementById('reporting-dashboard').classList.contains('hidden') === false) {
+                        renderReportingDashboard();
+                    }
                 });
             });
         }
@@ -458,13 +465,16 @@
                     falloutRateSpan.classList = `text-xl font-bold ${getRateColor(parseFloat(newRate))}`;
                     localStorage.setItem('newStartersData', JSON.stringify(currentNewStartersData));
                     renderNewStartersLeaderboard();
+                    // Re-render charts
+                    if (document.getElementById('reporting-dashboard').classList.contains('hidden') === false) {
+                        renderReportingDashboard();
+                    }
                 });
             });
 
             renderNewStartersLeaderboard();
         }
 
-        // New function to render the New Starters Leaderboard
         function renderNewStartersLeaderboard() {
             const sortedNewStarters = [...currentNewStartersData].sort((a, b) => calculateNewStarterScore(b) - calculateNewStarterScore(a));
             newStartersLeaderboardList.innerHTML = sortedNewStarters.map((member, index) => `
@@ -483,9 +493,7 @@
             `).join('');
         }
         
-        // Function to remove an endorsement entry
         function removeEndorsement(index) {
-            // Confirmation modal
             const confirmation = document.createElement('div');
             confirmation.classList.add('message-box', 'bg-red-600');
             confirmation.innerHTML = `
@@ -503,6 +511,10 @@
                 renderTimeToEndorseDashboard();
                 document.body.removeChild(confirmation);
                 showMessage('Endorsement removed successfully!', 'success');
+                // Re-render charts
+                if (document.getElementById('reporting-dashboard').classList.contains('hidden') === false) {
+                    renderReportingDashboard();
+                }
             });
 
             document.getElementById('cancel-remove').addEventListener('click', () => {
@@ -510,7 +522,6 @@
             });
         }
 
-        // Function to start editing an endorsement entry
         function startEditEndorsement(index) {
             editingIndex = index;
             const endorsement = currentEndorsementData[index];
@@ -524,7 +535,6 @@
             showMessage('Editing endorsement. Click Save Changes when done.', 'info');
         }
 
-        // Function to save the edited endorsement entry
         function saveEndorsementChanges() {
             const index = editingIndex;
             const receivedDateStr = receivedDateInput.value;
@@ -547,7 +557,6 @@
             
             localStorage.setItem('endorsementData', JSON.stringify(currentEndorsementData));
             
-            // Reset state
             editingIndex = -1;
             addEndorsementBtn.textContent = 'Add Endorsement';
             candidateNameInput.value = '';
@@ -559,17 +568,18 @@
 
             renderTimeToEndorseDashboard();
             showMessage('Changes saved successfully!', 'success');
+            // Re-render charts
+            if (document.getElementById('reporting-dashboard').classList.contains('hidden') === false) {
+                renderReportingDashboard();
+            }
         }
 
         function renderTimeToEndorseDashboard() {
-            // Calculate and display the total team average time
             const teamAverageTime = calculateTeamAverageTime(currentEndorsementData);
             averageTimeSpan.textContent = `${teamAverageTime.toFixed(1)} Days`;
 
-            // Render recruiter dropdown options
             recruiterNameInput.innerHTML = `<option value="" disabled selected>Select Recruiter</option>` + recruitmentConsultants.map(name => `<option value="${name}">${name}</option>`).join('');
 
-            // Render individual recruiter dashboards
             recruiterDashboardsContainer.innerHTML = recruitmentConsultants.map(recruiter => {
                 const recruiterEndorsements = currentEndorsementData.filter(item => item.recruiterName === recruiter);
                 const recruiterAverageTime = calculateRecruiterAverageTime(recruiter);
@@ -611,16 +621,133 @@
             }).join('');
         }
 
+        function renderLeaderboard() {
+            const sortedKpis = [...currentKpiData].sort((a, b) => calculateScore(b) - calculateScore(a));
+            leaderboardList.innerHTML = sortedKpis.map((member, index) => `
+                <li class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${index < 3 ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-gray-50'}">
+                    <div class="flex items-center">
+                        <span class="font-extrabold text-xl mr-4 ${index === 0 ? 'text-indigo-600' : index === 1 ? 'text-indigo-500' : index === 2 ? 'text-indigo-400' : 'text-gray-400'}">#${index + 1}</span>
+                        <span class="font-semibold text-gray-700">${member.name}</span>
+                    </div>
+                    <div class="flex items-center">
+                        ${index < 3 ? `<i class="fas fa-award w-5 h-5 mr-2 ${index === 0 ? 'text-yellow-500' : 'text-gray-400'}"></i>` : ''}
+                        <span class="text-xl font-bold text-gray-900">
+                            ${calculateScore(member).toFixed(0)}%
+                        </span>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function renderReportingDashboard() {
+            // Destroy existing charts if they exist to prevent duplicates
+            if (kpiScoresChart) kpiScoresChart.destroy();
+            if (newStartersChart) newStartersChart.destroy();
+            if (endorsementTimeChart) endorsementTimeChart.destroy();
+
+            // Prepare data for the KPI Scores Chart
+            const kpiScores = currentKpiData.map(member => calculateScore(member));
+            const kpiScoresData = {
+                labels: recruitmentConsultants,
+                datasets: [{
+                    label: 'Weekly KPI Score (%)',
+                    data: kpiScores,
+                    backgroundColor: 'rgba(99, 102, 241, 0.6)',
+                    borderColor: 'rgba(99, 102, 241, 1)',
+                    borderWidth: 1
+                }]
+            };
+
+            // Prepare data for the New Starters Chart
+            const newStartersData = {
+                labels: recruitmentConsultants,
+                datasets: [{
+                    label: 'New Starters',
+                    data: currentNewStartersData.map(member => member.newStarters),
+                    backgroundColor: 'rgba(52, 211, 153, 0.6)',
+                    borderColor: 'rgba(52, 211, 153, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Fall Outs',
+                    data: currentNewStartersData.map(member => member.fallOuts),
+                    backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    borderWidth: 1
+                }]
+            };
+
+            // Prepare data for the Time to Endorse Chart
+            const endorsementTimes = recruitmentConsultants.map(recruiter => calculateRecruiterAverageTime(recruiter));
+            const endorsementTimeData = {
+                 labels: recruitmentConsultants,
+                 datasets: [{
+                     label: 'Average Time to Endorse (Days)',
+                     data: endorsementTimes,
+                     backgroundColor: 'rgba(251, 191, 36, 0.6)',
+                     borderColor: 'rgba(251, 191, 36, 1)',
+                     borderWidth: 1
+                 }]
+            };
+
+            // Render KPI Scores Chart
+            const kpiScoresCtx = document.getElementById('kpi-scores-chart').getContext('2d');
+            kpiScoresChart = new Chart(kpiScoresCtx, {
+                type: 'bar',
+                data: kpiScoresData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // Render New Starters Chart
+            const newStartersCtx = document.getElementById('new-starters-chart').getContext('2d');
+            newStartersChart = new Chart(newStartersCtx, {
+                type: 'bar',
+                data: newStartersData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true }
+                    }
+                }
+            });
+
+            // Render Endorsement Time Chart
+            const endorsementTimeCtx = document.getElementById('endorsement-time-chart').getContext('2d');
+            endorsementTimeChart = new Chart(endorsementTimeCtx, {
+                type: 'bar',
+                data: endorsementTimeData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        }
+                    }
+                }
+            });
+        }
+
         function switchTab(tabId) {
             kpisDashboard.classList.add('hidden');
             newStartersDashboard.classList.add('hidden');
             timeToEndorseDashboard.classList.add('hidden');
+            reportingDashboard.classList.add('hidden');
             kpisTab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
             newStartersTab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
             timeToEndorseTab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
+            reportingTab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
             kpisTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
             newStartersTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
             timeToEndorseTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+            reportingTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
 
             if (tabId === 'kpis') {
                 kpisDashboard.classList.remove('hidden');
@@ -637,6 +764,11 @@
                 timeToEndorseTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
                 timeToEndorseTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
                 renderTimeToEndorseDashboard();
+            } else if (tabId === 'reporting') {
+                reportingDashboard.classList.remove('hidden');
+                reportingTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
+                reportingTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+                renderReportingDashboard();
             }
         }
         
@@ -659,22 +791,19 @@
         }
 
         window.onload = () => {
-            // Expose functions to the global scope for onclick attributes
             window.removeEndorsement = removeEndorsement;
             window.startEditEndorsement = startEditEndorsement;
 
-            // Initial rendering of the KPI dashboard as the default view
             renderKpiDashboard();
             renderNewStartersDashboard();
             renderTimeToEndorseDashboard();
             renderLeaderboard();
             
-            // Add event listeners for the tab buttons
             kpisTab.addEventListener('click', () => switchTab('kpis'));
             newStartersTab.addEventListener('click', () => switchTab('new-starters'));
             timeToEndorseTab.addEventListener('click', () => switchTab('time-to-endorse'));
+            reportingTab.addEventListener('click', () => switchTab('reporting'));
 
-            // Add event listener for the "add" or "save" button on the Time to Endorse dashboard
             addEndorsementBtn.addEventListener('click', () => {
                 if (editingIndex === -1) {
                     const candidateName = candidateNameInput.value.trim();
@@ -684,40 +813,42 @@
                     const receivedDateStr = receivedDateInput.value;
                     const endorsedDateStr = endorsedDateInput.value;
 
-                    if (candidateName && position && clientName && receivedDateStr && endorsedDateStr && recruiterName) {
-                        const receivedDate = new Date(receivedDateStr);
-                        const endorsedDate = new Date(endorsedDateStr);
-                        const timeDifference = endorsedDate.getTime() - receivedDate.getTime();
-                        const endorsementTime = Math.ceil(timeDifference / (1000 * 3600 * 24)); // Calculate days
-
-                        if (endorsementTime >= 0) {
-                            currentEndorsementData.push({
-                                recruiterName,
-                                candidateName,
-                                position,
-                                clientName,
-                                receivedDate: receivedDateStr,
-                                endorsedDate: endorsedDateStr,
-                                endorsementTime
-                            });
-                            localStorage.setItem('endorsementData', JSON.stringify(currentEndorsementData));
-                            renderTimeToEndorseDashboard();
-                            
-                            // Clear the input fields
-                            candidateNameInput.value = '';
-                            positionInput.value = '';
-                            clientNameInput.value = '';
-                            recruiterNameInput.value = '';
-                            receivedDateInput.value = '';
-                            endorsedDateInput.value = '';
-
-                            showMessage('Endorsement added successfully!', 'success');
-
-                        } else {
-                            showMessage('Endorsed Date cannot be before Received Date.', 'error');
-                        }
-                    } else {
+                    if (!candidateName || !position || !clientName || !receivedDateStr || !endorsedDateStr || !recruiterName) {
                         showMessage('Please fill out all fields.', 'error');
+                        return;
+                    }
+                    const receivedDate = new Date(receivedDateStr);
+                    const endorsedDate = new Date(endorsedDateStr);
+                    if (endorsedDate < receivedDate) {
+                        showMessage('Endorsed Date cannot be before Received Date.', 'error');
+                        return;
+                    }
+
+                    const timeDifference = endorsedDate.getTime() - receivedDate.getTime();
+                    const endorsementTime = Math.ceil(timeDifference / (1000 * 3600 * 24));
+
+                    currentEndorsementData.push({
+                        recruiterName,
+                        candidateName,
+                        position,
+                        clientName,
+                        receivedDate: receivedDateStr,
+                        endorsedDate: endorsedDateStr,
+                        endorsementTime
+                    });
+                    localStorage.setItem('endorsementData', JSON.stringify(currentEndorsementData));
+                    renderTimeToEndorseDashboard();
+                    
+                    candidateNameInput.value = '';
+                    positionInput.value = '';
+                    clientNameInput.value = '';
+                    recruiterNameInput.value = '';
+                    receivedDateInput.value = '';
+                    endorsedDateInput.value = '';
+
+                    showMessage('Endorsement added successfully!', 'success');
+                    if (document.getElementById('reporting-dashboard').classList.contains('hidden') === false) {
+                        renderReportingDashboard();
                     }
                 } else {
                     saveEndorsementChanges();

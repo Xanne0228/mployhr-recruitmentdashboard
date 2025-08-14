@@ -48,7 +48,7 @@
                     <div id="kpi-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- KPI cards will be dynamically rendered here -->
                     </div>
-                     <div id="leaderboard-container" class="mt-12">
+                    <div id="leaderboard-container" class="mt-12">
                         <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Leaderboard</h2>
                         <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-lg mx-auto">
                             <ul id="leaderboard-list" class="space-y-4">
@@ -69,20 +69,30 @@
     </div>
     
     <script>
-        const kpiTargets = {
-            applicationScreening: 4,
-            leadGeneration: 10,
-            zoomInterviews: 15,
-            profileCreation: 100,
-            endorsedCandidates: 5,
+        // Define new daily KPI targets
+        const kpiDailyTargets = {
+            seekApplicationScreening: 5, // < 5, so target is 4 or less
+            leadGeneration: 2,
+            zoomInterviews: 4,
+            endorsementCandidates: 3,
+            profileCreation: 30 // Points, not a count
         };
+
+        const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         
+        // Helper function to create initial daily data
+        function createDailyData() {
+            const dailyData = {};
+            weekdays.forEach(day => dailyData[day.toLowerCase()] = 0);
+            return dailyData;
+        }
+
         const initialTeamData = [
-            { name: 'Cath', applicationScreening: 0, leadGeneration: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0 },
-            { name: 'Jade', applicationScreening: 0, leadGeneration: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0 },
-            { name: 'Lorenz', applicationScreening: 0, leadGeneration: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0 },
-            { name: 'Marvin', applicationScreening: 0, leadGeneration: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0 },
-            { name: 'Jewel', applicationScreening: 0, leadGeneration: 0, zoomInterviews: 0, profileCreation: 0, endorsedCandidates: 0 },
+            { name: 'Cath', seekApplicationScreening: createDailyData(), leadGeneration: createDailyData(), zoomInterviews: createDailyData(), profileCreation: createDailyData(), endorsementCandidates: createDailyData() },
+            { name: 'Jade', seekApplicationScreening: createDailyData(), leadGeneration: createDailyData(), zoomInterviews: createDailyData(), profileCreation: createDailyData(), endorsementCandidates: createDailyData() },
+            { name: 'Lorenz', seekApplicationScreening: createDailyData(), leadGeneration: createDailyData(), zoomInterviews: createDailyData(), profileCreation: createDailyData(), endorsementCandidates: createDailyData() },
+            { name: 'Marvin', seekApplicationScreening: createDailyData(), leadGeneration: createDailyData(), zoomInterviews: createDailyData(), profileCreation: createDailyData(), endorsementCandidates: createDailyData() },
+            { name: 'Jewel', seekApplicationScreening: createDailyData(), leadGeneration: createDailyData(), zoomInterviews: createDailyData(), profileCreation: createDailyData(), endorsementCandidates: createDailyData() },
         ];
         
         const initialNewStartersData = [
@@ -104,57 +114,56 @@
         const leaderboardList = document.getElementById('leaderboard-list');
         const newStartersCardsContainer = document.getElementById('new-starters-cards-container');
 
-        function getKPIStatus(kpiKey, value) {
-            const target = kpiTargets[kpiKey];
-            if (kpiKey === 'applicationScreening') {
-                if (value <= target) return 'bg-green-500';
-                if (value > target && value <= target + 2) return 'bg-yellow-500';
-                return 'bg-red-500';
+        // Function to calculate the weekly sum for a given KPI
+        function getKpiWeeklyTotal(member, kpiKey) {
+            return weekdays.reduce((sum, day) => sum + (member[kpiKey][day.toLowerCase()] || 0), 0);
+        }
+
+        // Function to determine KPI status based on daily and weekly totals
+        function getKPIStatus(kpiKey, totalValue) {
+            const dailyTarget = kpiDailyTargets[kpiKey];
+            const weeklyTarget = dailyTarget * weekdays.length;
+
+            if (kpiKey === 'seekApplicationScreening') {
+                // "Less is better" metric: status is green if total is below target
+                return totalValue <= weeklyTarget ? 'bg-green-500' : 'bg-red-500';
             } else if (kpiKey === 'profileCreation') {
-                return value >= target ? 'bg-green-500' : 'bg-red-500';
+                // Point-based metric: green for meeting or exceeding target
+                 return totalValue >= weeklyTarget ? 'bg-green-500' : 'bg-red-500';
             } else {
-                if (value >= target) return 'bg-green-500';
-                if (value >= target * 0.75) return 'bg-yellow-500';
+                // "More is better" metric: green if >= target, yellow for 75% of target
+                if (totalValue >= weeklyTarget) return 'bg-green-500';
+                if (totalValue >= weeklyTarget * 0.75) return 'bg-yellow-500';
                 return 'bg-red-500';
             }
         }
         
+        // Function to calculate a total score based on all KPIs
         function calculateScore(member) {
             let score = 0;
-            const kpis = Object.keys(kpiTargets);
-            kpis.forEach(kpiKey => {
-                const value = member[kpiKey] || 0;
-                const target = kpiTargets[kpiKey];
-                if (kpiKey === 'applicationScreening') {
-                    score += Math.max(0, 1 - (value / target));
+            const kpiKeys = Object.keys(kpiDailyTargets);
+            const maxScorePerKpi = 100 / kpiKeys.length;
+            
+            kpiKeys.forEach(kpiKey => {
+                const totalValue = getKpiWeeklyTotal(member, kpiKey);
+                const dailyTarget = kpiDailyTargets[kpiKey];
+                const weeklyTarget = dailyTarget * weekdays.length;
+                let kpiScore = 0;
+
+                if (kpiKey === 'seekApplicationScreening') {
+                    // Less is better: 100% for meeting target, score decreases for every point over
+                    kpiScore = Math.max(0, maxScorePerKpi * (weeklyTarget - totalValue + 1) / weeklyTarget);
                 } else if (kpiKey === 'profileCreation') {
-                    score += value >= target ? 1 : 0;
+                    // Points-based: calculate score relative to target
+                    kpiScore = Math.min(maxScorePerKpi, (totalValue / weeklyTarget) * maxScorePerKpi);
                 } else {
-                    score += Math.min(1, value / target);
+                    // More is better: score is percentage of target achieved
+                    kpiScore = Math.min(maxScorePerKpi, (totalValue / weeklyTarget) * maxScorePerKpi);
                 }
+                score += kpiScore;
             });
-            return (score / kpis.length) * 100;
-        }
-
-        function getTrendIcon(member, kpiKey) {
-            const prevMember = previousKpiData.find(p => p.name === member.name);
-            if (!prevMember || prevMember[kpiKey] === undefined) {
-                return '';
-            }
-            const prevValue = prevMember[kpiKey];
-            const currentValue = member[kpiKey];
-
-            let iconClass = '';
-            if (kpiKey === 'applicationScreening') {
-                if (currentValue < prevValue) iconClass = 'fas fa-arrow-up text-green-500';
-                else if (currentValue > prevValue) iconClass = 'fas fa-arrow-down text-red-500';
-                else iconClass = 'fas fa-minus text-gray-500';
-            } else {
-                if (currentValue > prevValue) iconClass = 'fas fa-arrow-up text-green-500';
-                else if (currentValue < prevValue) iconClass = 'fas fa-arrow-down text-red-500';
-                else iconClass = 'fas fa-minus text-gray-500';
-            }
-            return `<i class="${iconClass} ml-2"></i>`;
+            
+            return score;
         }
         
         function calculateFalloutRate(newStarters, fallOuts) {
@@ -176,53 +185,66 @@
                         <h3 class="text-xl font-bold text-gray-800">${member.name}</h3>
                     </div>
                     <div class="flex-1 space-y-4">
-                        ${Object.keys(kpiTargets).map(kpiKey => `
-                            <div class="flex items-center justify-between">
-                                <span class="text-gray-600 font-medium capitalize flex items-center">
-                                    ${kpiKey.replace(/([A-Z])/g, ' $1')}
-                                </span>
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-sm text-gray-500">
-                                        (Target: ${kpiKey === 'applicationScreening' ? `<${kpiTargets[kpiKey] + 1}` : kpiTargets[kpiKey]})
+                        ${Object.keys(kpiDailyTargets).map(kpiKey => `
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-lg font-bold text-gray-800 capitalize flex items-center">
+                                        ${kpiKey.replace(/([A-Z])/g, ' $1')}
                                     </span>
-                                    <input
-                                        type="number"
-                                        value="${member[kpiKey]}"
-                                        data-name="${member.name}"
-                                        data-kpi="${kpiKey}"
-                                        class="w-16 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200"
-                                    />
-                                    <div class="w-3 h-3 rounded-full ${getKPIStatus(kpiKey, member[kpiKey])}"></div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-sm text-gray-500">
+                                            (Daily Target: ${kpiKey === 'seekApplicationScreening' ? `<${kpiDailyTargets[kpiKey]}` : kpiDailyTargets[kpiKey]})
+                                        </span>
+                                        <div class="w-3 h-3 rounded-full ${getKPIStatus(kpiKey, getKpiWeeklyTotal(member, kpiKey))}"></div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-5 gap-2 text-center text-sm mb-2">
+                                    ${weekdays.map(day => `<span>${day.slice(0, 3)}</span>`).join('')}
+                                </div>
+                                <div class="grid grid-cols-5 gap-2">
+                                    ${weekdays.map(day => `
+                                        <input
+                                            type="number"
+                                            value="${member[kpiKey][day.toLowerCase()] || 0}"
+                                            data-name="${member.name}"
+                                            data-kpi="${kpiKey}"
+                                            data-day="${day.toLowerCase()}"
+                                            class="w-full px-1 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200"
+                                        />
+                                    `).join('')}
+                                </div>
+                                <div class="mt-2 flex justify-between items-center text-sm font-semibold">
+                                    <span>Total:</span>
+                                    <span class="total-${kpiKey.replace(/([A-Z])/g, '-$1').toLowerCase()}" data-total="${getKpiWeeklyTotal(member, kpiKey)}">
+                                        ${getKpiWeeklyTotal(member, kpiKey)}
+                                    </span>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
                 </div>
             `).join('');
-
-            const sortedKpis = [...currentKpiData].sort((a, b) => calculateScore(b) - calculateScore(a));
-            leaderboardList.innerHTML = sortedKpis.map((member, index) => `
-                <li class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${index < 3 ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-gray-50'}">
-                    <div class="flex items-center">
-                        <span class="font-extrabold text-xl mr-4 ${index === 0 ? 'text-indigo-600' : index === 1 ? 'text-indigo-500' : index === 2 ? 'text-indigo-400' : 'text-gray-400'}">#${index + 1}</span>
-                        <span class="font-semibold text-gray-700">${member.name}</span>
-                    </div>
-                    <div class="flex items-center">
-                        ${index < 3 ? `<i class="fas fa-award w-5 h-5 mr-2 ${index === 0 ? 'text-yellow-500' : 'text-gray-400'}"></i>` : ''}
-                        <span class="text-xl font-bold text-gray-900">
-                            ${calculateScore(member).toFixed(0)}%
-                        </span>
-                    </div>
-                </li>
-            `).join('');
             
             kpiCardsContainer.querySelectorAll('input').forEach(input => {
                 input.addEventListener('input', (e) => {
                     const name = e.target.dataset.name;
                     const kpiKey = e.target.dataset.kpi;
+                    const day = e.target.dataset.day;
                     const value = parseInt(e.target.value, 10) || 0;
-                    currentKpiData = currentKpiData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
-                    e.target.nextElementSibling.classList = `w-3 h-3 rounded-full ${getKPIStatus(kpiKey, value)}`;
+                    
+                    currentKpiData = currentKpiData.map(m => m.name === name ? { ...m, [kpiKey]: { ...m[kpiKey], [day]: value } } : m);
+                    
+                    const totalValue = getKpiWeeklyTotal(currentKpiData.find(m => m.name === name), kpiKey);
+                    const totalSpan = e.target.closest('.bg-gray-50').querySelector(`.total-${kpiKey.replace(/([A-Z])/g, '-$1').toLowerCase()}`);
+                    const statusDot = e.target.closest('.bg-gray-50').querySelector('.w-3.h-3.rounded-full');
+
+                    if (totalSpan) {
+                        totalSpan.textContent = totalValue;
+                    }
+                    if (statusDot) {
+                         statusDot.classList = `w-3 h-3 rounded-full ${getKPIStatus(kpiKey, totalValue)}`;
+                    }
+
                     localStorage.setItem('kpiData', JSON.stringify(currentKpiData));
                     renderLeaderboard(); // Re-render leaderboard on change
                 });
@@ -279,8 +301,8 @@
                     currentNewStartersData = currentNewStartersData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
                     const falloutRateSpan = e.target.closest('.space-y-4').querySelector('.text-xl.font-bold');
                     const newRate = calculateFalloutRate(
-                      currentNewStartersData.find(m => m.name === name).newStarters,
-                      currentNewStartersData.find(m => m.name === name).fallOuts
+                        currentNewStartersData.find(m => m.name === name).newStarters,
+                        currentNewStartersData.find(m => m.name === name).fallOuts
                     ).toFixed(1);
                     falloutRateSpan.textContent = `${newRate}%`;
                     falloutRateSpan.classList = `text-xl font-bold ${getRateColor(parseFloat(newRate))}`;
@@ -312,7 +334,7 @@
         function renderLeaderboard() {
             const sortedKpis = [...currentKpiData].sort((a, b) => calculateScore(b) - calculateScore(a));
             leaderboardList.innerHTML = sortedKpis.map((member, index) => `
-                <li class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${index < 3 ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-gray-50'}"">
+                <li class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${index < 3 ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-gray-50'}">
                     <div class="flex items-center">
                         <span class="font-extrabold text-xl mr-4 ${index === 0 ? 'text-indigo-600' : index === 1 ? 'text-indigo-500' : index === 2 ? 'text-indigo-400' : 'text-gray-400'}">#${index + 1}</span>
                         <span class="font-semibold text-gray-700">${member.name}</span>

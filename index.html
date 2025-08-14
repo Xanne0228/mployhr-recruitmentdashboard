@@ -44,6 +44,19 @@
             90% { opacity: 1; }
             100% { opacity: 0; }
         }
+        @media print {
+            body > * {
+                display: none !important;
+            }
+            body #dashboard-content {
+                display: block !important;
+            }
+            body #kpis-dashboard, 
+            body #new-starters-dashboard, 
+            body #time-to-endorse-dashboard {
+                display: block !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -66,6 +79,9 @@
             <div id="dashboard-content" class="fade-in">
                 <!-- Weekly KPI Dashboard -->
                 <div id="kpis-dashboard">
+                    <button onclick="window.print()" class="print-button bg-gray-200 text-gray-700 px-4 py-2 rounded-md font-semibold hover:bg-gray-300 transition-colors duration-200 mb-6">
+                        <i class="fas fa-print mr-2"></i> Print Dashboard
+                    </button>
                     <div id="kpi-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- KPI cards will be dynamically rendered here -->
                     </div>
@@ -81,6 +97,9 @@
 
                 <!-- New Starters Dashboard -->
                 <div id="new-starters-dashboard" class="hidden">
+                    <button onclick="window.print()" class="print-button bg-gray-200 text-gray-700 px-4 py-2 rounded-md font-semibold hover:bg-gray-300 transition-colors duration-200 mb-6">
+                        <i class="fas fa-print mr-2"></i> Print Dashboard
+                    </button>
                     <p class="text-center text-sm text-gray-500 mb-6">Note: This is a **monthly** dashboard. Fallouts are defined as staff leaving within **30 days** of their commencement date.</p>
                     <div id="new-starters-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- New Starters cards will be dynamically rendered here -->
@@ -97,6 +116,9 @@
 
                 <!-- Time to Endorse Dashboard -->
                 <div id="time-to-endorse-dashboard" class="hidden">
+                    <button onclick="window.print()" class="print-button bg-gray-200 text-gray-700 px-4 py-2 rounded-md font-semibold hover:bg-gray-300 transition-colors duration-200 mb-6">
+                        <i class="fas fa-print mr-2"></i> Print Dashboard
+                    </button>
                     <div class="max-w-xl mx-auto">
                         <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Time to Endorse</h2>
                         <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">

@@ -230,7 +230,7 @@
         const endorsedDateInput = document.getElementById('endorsed-date-input');
         
         let kpiScoresChart, newStartersChart, endorsementTimeChart;
-        let editingIndex = -1;
+        let editingId = null;
 
         // Helper function to show a temporary message box
         function showMessage(message, type = 'info') {
@@ -511,7 +511,7 @@
             `).join('');
         }
         
-        function removeEndorsement(index) {
+        function removeEndorsement(id) {
             const confirmation = document.createElement('div');
             confirmation.classList.add('message-box', 'bg-red-600');
             confirmation.innerHTML = `
@@ -524,15 +524,18 @@
             document.body.appendChild(confirmation);
 
             document.getElementById('confirm-remove').addEventListener('click', () => {
-                currentEndorsementData.splice(index, 1);
-                localStorage.setItem('endorsementData', JSON.stringify(currentEndorsementData));
-                renderTimeToEndorseDashboard();
-                document.body.removeChild(confirmation);
-                showMessage('Endorsement removed successfully!', 'success');
-                // Re-render charts
-                if (document.getElementById('reporting-dashboard').classList.contains('hidden') === false) {
-                    renderReportingDashboard();
+                const indexToRemove = currentEndorsementData.findIndex(item => item.id == id); // Fixed comparison operator
+                if (indexToRemove !== -1) {
+                    currentEndorsementData.splice(indexToRemove, 1);
+                    localStorage.setItem('endorsementData', JSON.stringify(currentEndorsementData));
+                    renderTimeToEndorseDashboard();
+                    showMessage('Endorsement removed successfully!', 'success');
+                     // Re-render charts
+                    if (document.getElementById('reporting-dashboard').classList.contains('hidden') === false) {
+                        renderReportingDashboard();
+                    }
                 }
+                document.body.removeChild(confirmation);
             });
 
             document.getElementById('cancel-remove').addEventListener('click', () => {
@@ -540,9 +543,14 @@
             });
         }
 
-        function startEditEndorsement(index) {
-            editingIndex = index;
-            const endorsement = currentEndorsementData[index];
+        function startEditEndorsement(id) {
+            const indexToEdit = currentEndorsementData.findIndex(item => item.id == id); // Fixed comparison operator
+            if (indexToEdit === -1) {
+                showMessage('Error: Endorsement not found.', 'error');
+                return;
+            }
+            editingId = id; // Store the unique ID, not the index
+            const endorsement = currentEndorsementData[indexToEdit];
             candidateNameInput.value = endorsement.candidateName;
             positionInput.value = endorsement.position;
             clientNameInput.value = endorsement.clientName;
@@ -554,27 +562,41 @@
         }
 
         function saveEndorsementChanges() {
-            const index = editingIndex;
+            const index = currentEndorsementData.findIndex(item => item.id == editingId); // Use the stored unique ID
+            if (index === -1) {
+                showMessage('Error: Endorsement not found.', 'error');
+                return;
+            }
             const receivedDateStr = receivedDateInput.value;
             const endorsedDateStr = endorsedDateInput.value;
             
             const receivedDate = new Date(receivedDateStr);
             const endorsedDate = new Date(endorsedDateStr);
-            const endorsementTime = calculateBusinessDays(receivedDate, endorsedDate);
 
-            currentEndorsementData[index] = {
-                recruiterName: recruiterNameInput.value,
-                candidateName: candidateNameInput.value.trim(),
-                position: positionInput.value.trim(),
-                clientName: clientNameInput.value.trim(),
-                receivedDate: receivedDateStr,
-                endorsedDate: endorsedDateStr,
-                endorsementTime
-            };
+            // Validation
+            if (endorsedDate < receivedDate) {
+                showMessage('Endorsed Date cannot be before Received Date.', 'error');
+                return;
+            }
+            if (!candidateNameInput.value.trim() || !positionInput.value.trim() || !clientNameInput.value.trim() || !recruiterNameInput.value) {
+                showMessage('Please fill out all fields.', 'error');
+                return;
+            }
+
+            const endorsementTime = calculateBusinessDays(receivedDate, endorsedDate);
+            const entryToUpdate = currentEndorsementData[index];
+
+            entryToUpdate.recruiterName = recruiterNameInput.value;
+            entryToUpdate.candidateName = candidateNameInput.value.trim();
+            entryToUpdate.position = positionInput.value.trim();
+            entryToUpdate.clientName = clientNameInput.value.trim();
+            entryToUpdate.receivedDate = receivedDateStr;
+            entryToUpdate.endorsedDate = endorsedDateStr;
+            entryToUpdate.endorsementTime = endorsementTime;
             
             localStorage.setItem('endorsementData', JSON.stringify(currentEndorsementData));
             
-            editingIndex = -1;
+            editingId = null; // Reset the editing ID
             addEndorsementBtn.textContent = 'Add Endorsement';
             candidateNameInput.value = '';
             positionInput.value = '';
@@ -612,16 +634,16 @@
                             <span class="text-4xl font-bold text-indigo-500">${recruiterAverageTime.toFixed(1)} Days</span>
                         </div>
                         <ul class="space-y-2 mt-4 border-t pt-4 max-h-48 overflow-y-auto">
-                            ${recruiterEndorsements.map((item, index) => `
+                            ${recruiterEndorsements.map(item => `
                                 <li class="p-3 rounded-lg bg-gray-50 border border-gray-200 text-sm">
                                     <div class="flex items-center justify-between font-bold text-gray-800 mb-1">
                                         <span>${item.candidateName}</span>
                                         <div class="flex items-center space-x-2">
                                             <span>${item.endorsementTime} days</span>
-                                            <button onclick="startEditEndorsement(${index})" class="text-indigo-500 hover:text-indigo-700">
+                                            <button onclick="startEditEndorsement('${item.id}')" class="text-indigo-500 hover:text-indigo-700">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <button onclick="removeEndorsement(${index})" class="text-red-500 hover:text-red-700">
+                                            <button onclick="removeEndorsement('${item.id}')" class="text-red-500 hover:text-red-700">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </div>
@@ -822,7 +844,7 @@
             reportingTab.addEventListener('click', () => switchTab('reporting'));
 
             addEndorsementBtn.addEventListener('click', () => {
-                if (editingIndex === -1) {
+                if (editingId === null) {
                     const candidateName = candidateNameInput.value.trim();
                     const position = positionInput.value.trim();
                     const clientName = clientNameInput.value.trim();
@@ -844,6 +866,7 @@
                     const endorsementTime = calculateBusinessDays(receivedDate, endorsedDate);
 
                     currentEndorsementData.push({
+                        id: Date.now(), // Unique ID for the new entry
                         recruiterName,
                         candidateName,
                         position,

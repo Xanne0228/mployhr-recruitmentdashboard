@@ -250,6 +250,24 @@
             }, 3000);
         }
 
+        // Function to calculate the number of business days between two dates
+        function calculateBusinessDays(startDate, endDate) {
+            let count = 0;
+            const currentDate = new Date(startDate);
+            const end = new Date(endDate);
+
+            // Loop through each day from start to end date
+            while (currentDate <= end) {
+                const dayOfWeek = currentDate.getDay(); // Sunday - 0, Monday - 1, etc.
+                // Check if the day is not a weekend (Saturday or Sunday)
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    count++;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            return count;
+        }
+
         // Function to calculate the weekly sum for a given KPI
         function getKpiWeeklyTotal(member, kpiKey) {
             return weekdays.reduce((sum, day) => sum + (member[kpiKey][day.toLowerCase()] || 0), 0);
@@ -542,8 +560,7 @@
             
             const receivedDate = new Date(receivedDateStr);
             const endorsedDate = new Date(endorsedDateStr);
-            const timeDifference = endorsedDate.getTime() - receivedDate.getTime();
-            const endorsementTime = Math.ceil(timeDifference / (1000 * 3600 * 24));
+            const endorsementTime = calculateBusinessDays(receivedDate, endorsedDate);
 
             currentEndorsementData[index] = {
                 recruiterName: recruiterNameInput.value,
@@ -824,8 +841,7 @@
                         return;
                     }
 
-                    const timeDifference = endorsedDate.getTime() - receivedDate.getTime();
-                    const endorsementTime = Math.ceil(timeDifference / (1000 * 3600 * 24));
+                    const endorsementTime = calculateBusinessDays(receivedDate, endorsedDate);
 
                     currentEndorsementData.push({
                         recruiterName,

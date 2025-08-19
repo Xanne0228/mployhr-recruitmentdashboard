@@ -168,9 +168,9 @@
         const kpiDailyTargets = {
             seekApplicationScreening: 5, // < 5, so target is 4 or less
             leadGeneration: 2,
-            zoomInterviews: 4,
-            endorsementCandidates: 3,
-            profileCreation: 30 // Points, not a count
+            zoomInterviews: 3,
+            endorsementCandidates: 1,
+            profileCreation: 10 // Points, not a count
         };
 
         const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -524,7 +524,7 @@
             document.body.appendChild(confirmation);
 
             document.getElementById('confirm-remove').addEventListener('click', () => {
-                const indexToRemove = currentEndorsementData.findIndex(item => item.id == id); // Fixed comparison operator
+                const indexToRemove = currentEndorsementData.findIndex(item => item.id == id);
                 if (indexToRemove !== -1) {
                     currentEndorsementData.splice(indexToRemove, 1);
                     localStorage.setItem('endorsementData', JSON.stringify(currentEndorsementData));
@@ -544,12 +544,12 @@
         }
 
         function startEditEndorsement(id) {
-            const indexToEdit = currentEndorsementData.findIndex(item => item.id == id); // Fixed comparison operator
+            const indexToEdit = currentEndorsementData.findIndex(item => item.id == id);
             if (indexToEdit === -1) {
                 showMessage('Error: Endorsement not found.', 'error');
                 return;
             }
-            editingId = id; // Store the unique ID, not the index
+            editingId = id;
             const endorsement = currentEndorsementData[indexToEdit];
             candidateNameInput.value = endorsement.candidateName;
             positionInput.value = endorsement.position;
@@ -562,7 +562,7 @@
         }
 
         function saveEndorsementChanges() {
-            const index = currentEndorsementData.findIndex(item => item.id == editingId); // Use the stored unique ID
+            const index = currentEndorsementData.findIndex(item => item.id == editingId);
             if (index === -1) {
                 showMessage('Error: Endorsement not found.', 'error');
                 return;
@@ -596,7 +596,7 @@
             
             localStorage.setItem('endorsementData', JSON.stringify(currentEndorsementData));
             
-            editingId = null; // Reset the editing ID
+            editingId = null;
             addEndorsementBtn.textContent = 'Add Endorsement';
             candidateNameInput.value = '';
             positionInput.value = '';

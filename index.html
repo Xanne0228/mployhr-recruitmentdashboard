@@ -175,6 +175,7 @@
 
         const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         const recruitmentConsultants = ['Catherine', 'Jade', 'Jewel', 'Marvin', 'Lorenz', 'Roxanne', 'Maria', 'Belle'];
+        const weeklyConsultants = ['Catherine', 'Jade', 'Jewel', 'Marvin', 'Lorenz'];
 
         // Helper function to create initial daily data
         function createDailyData() {
@@ -183,27 +184,21 @@
             return dailyData;
         }
 
-        // Updated initialTeamData to only include the requested consultants for the weekly KPI dashboard
-        const initialTeamData = [
-            { name: 'Catherine', seekApplicationScreening: createDailyData(), leadGeneration: createDailyData(), zoomInterviews: createDailyData(), profileCreation: createDailyData(), endorsementCandidates: createDailyData() },
-            { name: 'Jade', seekApplicationScreening: createDailyData(), leadGeneration: createDailyData(), zoomInterviews: createDailyData(), profileCreation: createDailyData(), endorsementCandidates: createDailyData() },
-            { name: 'Jewel', seekApplicationScreening: createDailyData(), leadGeneration: createDailyData(), zoomInterviews: createDailyData(), profileCreation: createDailyData(), endorsementCandidates: createDailyData() },
-            { name: 'Marvin', seekApplicationScreening: createDailyData(), leadGeneration: createDailyData(), zoomInterviews: createDailyData(), profileCreation: createDailyData(), endorsementCandidates: createDailyData() },
-            { name: 'Lorenz', seekApplicationScreening: createDailyData(), leadGeneration: createDailyData(), zoomInterviews: createDailyData(), profileCreation: createDailyData(), endorsementCandidates: createDailyData() },
-        ];
+        const initialTeamData = weeklyConsultants.map(name => ({
+            name: name,
+            seekApplicationScreening: createDailyData(),
+            leadGeneration: createDailyData(),
+            zoomInterviews: createDailyData(),
+            profileCreation: createDailyData(),
+            endorsementCandidates: createDailyData(),
+        }));
         
-        const initialNewStartersData = [
-            { name: 'Catherine', newStarters: 0, fallOuts: 0 },
-            { name: 'Jade', newStarters: 0, fallOuts: 0 },
-            { name: 'Jewel', newStarters: 0, fallOuts: 0 },
-            { name: 'Marvin', newStarters: 0, fallOuts: 0 },
-            { name: 'Lorenz', newStarters: 0, fallOuts: 0 },
-            { name: 'Roxanne', newStarters: 0, fallOuts: 0 },
-            { name: 'Maria', newStarters: 0, fallOuts: 0 },
-            { name: 'Belle', newStarters: 0, fallOuts: 0 },
-        ];
+        const initialNewStartersData = recruitmentConsultants.map(name => ({
+            name: name,
+            newStarters: 0,
+            fallOuts: 0
+        }));
 
-        // This is now an empty array. The dashboard will be blank until you add new entries.
         const initialEndorsementData = [];
 
         let currentKpiData = JSON.parse(localStorage.getItem('kpiData')) || initialTeamData;
@@ -391,7 +386,7 @@
         }
         
         function renderKpiDashboard() {
-            kpiCardsContainer.innerHTML = initialTeamData.map(member => `
+            kpiCardsContainer.innerHTML = currentKpiData.map(member => `
                 <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
                     <div class="flex items-center mb-4">
                         <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
@@ -814,61 +809,6 @@
                     }
                 }
             });
-        }
-
-        function switchTab(tabId) {
-            kpisDashboard.classList.add('hidden');
-            newStartersDashboard.classList.add('hidden');
-            timeToEndorseDashboard.classList.add('hidden');
-            reportingDashboard.classList.add('hidden');
-            kpisTab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
-            newStartersTab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
-            timeToEndorseTab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
-            reportingTab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
-            kpisTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-            newStartersTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-            timeToEndorseTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-            reportingTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-
-            if (tabId === 'kpis') {
-                kpisDashboard.classList.remove('hidden');
-                kpisTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
-                kpisTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-                renderKpiDashboard();
-            } else if (tabId === 'new-starters') {
-                newStartersDashboard.classList.remove('hidden');
-                newStartersTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
-                newStartersTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-                renderNewStartersDashboard();
-            } else if (tabId === 'time-to-endorse') {
-                timeToEndorseDashboard.classList.remove('hidden');
-                timeToEndorseTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
-                timeToEndorseTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-                renderTimeToEndorseDashboard();
-            } else if (tabId === 'reporting') {
-                reportingDashboard.classList.remove('hidden');
-                reportingTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
-                reportingTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-                renderReportingDashboard();
-            }
-        }
-        
-        function renderLeaderboard() {
-            const sortedKpis = [...currentKpiData].sort((a, b) => calculateScore(b) - calculateScore(a));
-            leaderboardList.innerHTML = sortedKpis.map((member, index) => `
-                <li class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${index < 3 ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-gray-50'}">
-                    <div class="flex items-center">
-                        <span class="font-extrabold text-xl mr-4 ${index === 0 ? 'text-indigo-600' : index === 1 ? 'text-indigo-500' : index === 2 ? 'text-indigo-400' : 'text-gray-400'}">#${index + 1}</span>
-                        <span class="font-semibold text-gray-700">${member.name}</span>
-                    </div>
-                    <div class="flex items-center">
-                        ${index < 3 ? `<i class="fas fa-award w-5 h-5 mr-2 ${index === 0 ? 'text-yellow-500' : 'text-gray-400'}"></i>` : ''}
-                        <span class="text-xl font-bold text-gray-900">
-                            ${calculateScore(member).toFixed(0)}%
-                        </span>
-                    </div>
-                </li>
-            `).join('');
         }
 
         window.onload = () => {

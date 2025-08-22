@@ -87,7 +87,7 @@
 
                 <!-- New Starters Dashboard -->
                 <div id="new-starters-dashboard" class="hidden">
-                    <p class="text-center text-sm text-gray-500 mb-6">Note: This is a <strong>monthly</strong> dashboard. Fallouts are defined as staff leaving within <strong>30 days</strong> of their commencement date.</p>
+                    <p class="text-center text-sm text-gray-500 mb-6">Note: This is the dashboard for <strong>August</strong>. Fallouts are defined as staff leaving within <strong>30 days</strong> of their commencement date.</p>
                     <div id="new-starters-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- New Starters cards will be dynamically rendered here -->
                     </div>
@@ -152,7 +152,7 @@
                             <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Monthly New Starters vs. Fallouts</h3>
                             <canvas id="new-starters-chart"></canvas>
                            </div>
-                           <!-- Time to Endorse Chart -->
+                            <!-- Time to Endorse Chart -->
                         <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
                             <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Average Time to Endorse (Days)</h3>
                             <canvas id="endorsement-time-chart"></canvas>
@@ -167,45 +167,47 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
-        // These global variables are provided by the environment.
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2yY5dAYwQA4IOB5f-fBF_UHNQZseGumY",
+            authDomain: "mployhr-recruitment-dashboard.firebaseapp.com",
+            projectId: "mployhr-recruitment-dashboard",
+            storageBucket: "mployhr-recruitment-dashboard.appspot.com",
+            messagingSenderId: "736940004987",
+            appId: "1:736940004987:web:5fec3958310a7912c7f4de",
+            measurementId: "G-ZWQE1FVHY4"
+        };
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-dashboard-app';
         
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
+        let app, db, auth;
+        if (firebaseConfig.apiKey) {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        }
+        
         // --- App Constants and Initial Data ---
-        const kpiDailyTargets = {
-            seekApplicationScreening: 5, // < 5, so target is 4 or less
-            leadGeneration: 2,
-            zoomInterviews: 3,
-            endorsementCandidates: 1,
-            profileCreation: 10 // Points, not a count
+        const kpiWeeklyTargets = {
+            seekApplicationScreening: 25, // < 25, so target is 24 or less
+            leadGeneration: 10,
+            zoomInterviews: 15,
+            endorsementCandidates: 5,
+            profileCreation: 50 // Points, not a count
         };
 
-        const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         const recruitmentConsultants = ['Catherine', 'Jade', 'Jewel', 'Marvin', 'Lorenz', 'Roxanne', 'Maria', 'Belle'];
         const weeklyConsultants = ['Catherine', 'Jade', 'Jewel', 'Marvin', 'Lorenz'];
 
-        function createDailyData() {
-            const dailyData = {};
-            weekdays.forEach(day => dailyData[day.toLowerCase()] = 0);
-            return dailyData;
-        }
-
         const initialTeamData = weeklyConsultants.map(name => ({
             name: name,
-            seekApplicationScreening: createDailyData(),
-            leadGeneration: createDailyData(),
-            zoomInterviews: createDailyData(),
-            profileCreation: createDailyData(),
-            endorsementCandidates: createDailyData(),
+            seekApplicationScreening: 0,
+            leadGeneration: 0,
+            zoomInterviews: 0,
+            profileCreation: 0,
+            endorsementCandidates: 0,
         }));
         
         const initialNewStartersData = recruitmentConsultants.map(name => ({
@@ -220,8 +222,8 @@
         let currentKpiData = initialTeamData;
         let currentNewStartersData = initialNewStartersData;
         let currentEndorsementData = initialEndorsementData;
-        let dbDocRef; // Reference to the Firestore document
-        let userId; // Current user's ID
+        let dbDocRef; 
+        let userId; 
 
         // --- DOM Elements ---
         const kpisTab = document.getElementById('kpis-tab');
@@ -251,51 +253,57 @@
         let editingId = null;
 
         // --- Firebase Authentication and Data Sync ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userId = user.uid;
-                userInfoDiv.textContent = `Connected as: ${userId}`;
-                
-                // Path for public, collaborative data.
-                // A valid document path must have an even number of segments.
-                const docPath = `/artifacts/${appId}/public/data/dashboard/state`;
-                dbDocRef = doc(db, docPath);
-
-                // Listen for real-time updates
-                onSnapshot(dbDocRef, (doc) => {
-                    if (doc.exists()) {
-                        const data = doc.data();
-                        currentKpiData = data.kpiData || initialTeamData;
-                        currentNewStartersData = data.newStartersData || initialNewStartersData;
-                        currentEndorsementData = data.endorsementData || initialEndorsementData;
-                    } else {
-                        // If no data, initialize with default data
-                        console.log("No document found, initializing with default data.");
-                        saveStateToDb();
-                    }
-                    renderAllDashboards();
-                });
-
-            } else {
-                userInfoDiv.textContent = 'Not connected. Please sign in.';
+        const connectionTimeout = setTimeout(() => {
+            if (userInfoDiv.textContent === 'Connecting...') {
+                userInfoDiv.textContent = 'Connection timed out. Please check your network or refresh the page.';
+                userInfoDiv.classList.add('text-red-500');
             }
-        });
+        }, 15000); 
 
-        // Sign in the user
-        async function signIn() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+        if (auth) {
+            onAuthStateChanged(auth, async (user) => {
+                clearTimeout(connectionTimeout); 
+                if (user) {
+                    userId = user.uid;
+                    userInfoDiv.textContent = `Connected as: ${userId}`;
+                    userInfoDiv.classList.remove('text-red-500');
+                    
+                    const docPath = `/artifacts/${appId}/public/data/dashboard/state`;
+                    dbDocRef = doc(db, docPath);
+
+                    onSnapshot(dbDocRef, (doc) => {
+                        if (doc.exists()) {
+                            const data = doc.data();
+                            currentKpiData = data.kpiData || initialTeamData;
+                            currentNewStartersData = data.newStartersData || initialNewStartersData;
+                            currentEndorsementData = data.endorsementData || initialEndorsementData;
+                        } else {
+                            console.log("No document found, initializing with default data.");
+                            saveStateToDb();
+                        }
+                        renderAllDashboards();
+                    });
+
                 } else {
-                    await signInAnonymously(auth);
+                    userInfoDiv.textContent = 'Not connected. Please sign in.';
                 }
+            });
+        }
+
+        async function signIn() {
+            if (!auth) return;
+            try {
+                // The custom token from the environment can cause a mismatch if a specific
+                // firebaseConfig is hardcoded. By always signing in anonymously, we ensure
+                // the session is created within the correct Firebase project context.
+                await signInAnonymously(auth);
             } catch (error) {
                 console.error("Authentication failed:", error);
                 userInfoDiv.textContent = 'Authentication failed.';
+                userInfoDiv.classList.add('text-red-500');
             }
         }
 
-        // Function to save the entire app state to Firestore
         async function saveStateToDb() {
             if (!dbDocRef) {
                 console.error("Firestore document reference not initialized.");
@@ -347,18 +355,11 @@
             return count;
         }
 
-        function getKpiWeeklyTotal(member, kpiKey) {
-            return weekdays.reduce((sum, day) => sum + (member[kpiKey][day.toLowerCase()] || 0), 0);
-        }
-
         function getKPIStatus(kpiKey, totalValue) {
-            const dailyTarget = kpiDailyTargets[kpiKey];
-            const weeklyTarget = dailyTarget * weekdays.length;
+            const weeklyTarget = kpiWeeklyTargets[kpiKey];
 
             if (kpiKey === 'seekApplicationScreening') {
-                return totalValue <= weeklyTarget ? 'bg-green-500' : 'bg-red-500';
-            } else if (kpiKey === 'profileCreation') {
-                return totalValue >= weeklyTarget ? 'bg-green-500' : 'bg-red-500';
+                return totalValue < weeklyTarget ? 'bg-green-500' : 'bg-red-500';
             } else {
                 if (totalValue >= weeklyTarget) return 'bg-green-500';
                 if (totalValue >= weeklyTarget * 0.75) return 'bg-yellow-500';
@@ -368,19 +369,20 @@
         
         function calculateScore(member) {
             let score = 0;
-            const kpiKeys = Object.keys(kpiDailyTargets);
+            const kpiKeys = Object.keys(kpiWeeklyTargets);
             const maxScorePerKpi = 100 / kpiKeys.length;
             
             kpiKeys.forEach(kpiKey => {
-                const totalValue = getKpiWeeklyTotal(member, kpiKey);
-                const dailyTarget = kpiDailyTargets[kpiKey];
-                const weeklyTarget = dailyTarget * weekdays.length;
+                const totalValue = member[kpiKey] || 0;
+                const weeklyTarget = kpiWeeklyTargets[kpiKey];
                 let kpiScore = 0;
 
-                if (kpiKey === 'seekApplicationScreening') {
-                    kpiScore = Math.max(0, maxScorePerKpi * (weeklyTarget - totalValue + 1) / weeklyTarget);
-                } else {
-                    kpiScore = Math.min(maxScorePerKpi, (totalValue / weeklyTarget) * maxScorePerKpi);
+                if (weeklyTarget > 0) { // Avoid division by zero
+                    if (kpiKey === 'seekApplicationScreening') {
+                        kpiScore = Math.max(0, maxScorePerKpi * (weeklyTarget - totalValue) / weeklyTarget);
+                    } else {
+                        kpiScore = Math.min(maxScorePerKpi, (totalValue / weeklyTarget) * maxScorePerKpi);
+                    }
                 }
                 score += kpiScore;
             });
@@ -411,27 +413,24 @@
         }
 
         function calculateTeamAverageTime(endorsementData) {
-            if (endorsementData.length === 0) return 0;
+            if (!endorsementData || endorsementData.length === 0) return 0;
             const totalTime = endorsementData.reduce((sum, item) => sum + item.endorsementTime, 0);
             return totalTime / endorsementData.length;
         }
 
         // --- Rendering Functions ---
         function switchTab(tabId) {
-            // Hide all dashboards
             kpisDashboard.classList.add('hidden');
             newStartersDashboard.classList.add('hidden');
             timeToEndorseDashboard.classList.add('hidden');
             reportingDashboard.classList.add('hidden');
 
-            // Reset all tab styles
             const tabs = [kpisTab, newStartersTab, timeToEndorseTab, reportingTab];
             tabs.forEach(tab => {
                 tab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
                 tab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
             });
 
-            // Show the selected dashboard and set active tab style
             let activeTab;
             if (tabId === 'kpis') {
                 kpisDashboard.classList.remove('hidden');
@@ -444,7 +443,7 @@
                 activeTab = timeToEndorseTab;
             } else if (tabId === 'reporting') {
                 reportingDashboard.classList.remove('hidden');
-                renderReportingDashboard(); // Charts need to be rendered when tab is visible
+                renderReportingDashboard(); 
                 activeTab = reportingTab;
             }
             
@@ -462,7 +461,9 @@
                         <h3 class="text-xl font-bold text-gray-800">${member.name}</h3>
                     </div>
                     <div class="flex-1 space-y-4">
-                        ${Object.keys(kpiDailyTargets).map(kpiKey => `
+                        ${Object.keys(kpiWeeklyTargets).map(kpiKey => {
+                            const weeklyValue = member[kpiKey] || 0;
+                            return `
                             <div class="p-4 bg-gray-50 rounded-lg">
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="text-lg font-bold text-gray-800 capitalize flex items-center">
@@ -470,34 +471,23 @@
                                     </span>
                                     <div class="flex items-center space-x-2">
                                         <span class="text-sm text-gray-500">
-                                            (Target: ${kpiKey === 'seekApplicationScreening' ? `<${kpiDailyTargets[kpiKey]}` : kpiDailyTargets[kpiKey]}/day)
+                                            (Target: ${kpiKey === 'seekApplicationScreening' ? `<${kpiWeeklyTargets[kpiKey]}` : kpiWeeklyTargets[kpiKey]}/wk)
                                         </span>
-                                        <div class="w-3 h-3 rounded-full ${getKPIStatus(kpiKey, getKpiWeeklyTotal(member, kpiKey))}"></div>
+                                        <div class="w-3 h-3 rounded-full ${getKPIStatus(kpiKey, weeklyValue)}"></div>
                                     </div>
                                 </div>
-                                <div class="grid grid-cols-5 gap-2 text-center text-sm mb-2">
-                                    ${weekdays.map(day => `<span>${day.slice(0, 3)}</span>`).join('')}
-                                </div>
-                                <div class="grid grid-cols-5 gap-2">
-                                    ${weekdays.map(day => `
-                                        <input
-                                            type="number"
-                                            value="${member[kpiKey][day.toLowerCase()] || 0}"
-                                            data-name="${member.name}"
-                                            data-kpi="${kpiKey}"
-                                            data-day="${day.toLowerCase()}"
-                                            class="w-full px-1 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200"
-                                        />
-                                    `).join('')}
-                                </div>
-                                <div class="mt-2 flex justify-between items-center text-sm font-semibold">
-                                    <span>Total:</span>
-                                    <span class="total-${kpiKey.replace(/([A-Z])/g, '-$1').toLowerCase()}" data-total="${getKpiWeeklyTotal(member, kpiKey)}">
-                                        ${getKpiWeeklyTotal(member, kpiKey)}
-                                    </span>
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold">Weekly Total:</span>
+                                    <input
+                                        type="number"
+                                        value="${weeklyValue}"
+                                        data-name="${member.name}"
+                                        data-kpi="${kpiKey}"
+                                        class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200"
+                                    />
                                 </div>
                             </div>
-                        `).join('')}
+                        `}).join('')}
                     </div>
                 </div>
             `).join('');
@@ -506,12 +496,11 @@
                 input.addEventListener('input', (e) => {
                     const name = e.target.dataset.name;
                     const kpiKey = e.target.dataset.kpi;
-                    const day = e.target.dataset.day;
                     const value = parseInt(e.target.value, 10) || 0;
                     
-                    currentKpiData = currentKpiData.map(m => m.name === name ? { ...m, [kpiKey]: { ...m[kpiKey], [day]: value } } : m);
+                    currentKpiData = currentKpiData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
                     
-                    saveStateToDb(); // Save changes to Firestore
+                    saveStateToDb(); 
                 });
             });
         }
@@ -564,7 +553,7 @@
                     const kpiKey = e.target.dataset.kpi;
                     const value = parseInt(e.target.value, 10) || 0;
                     currentNewStartersData = currentNewStartersData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
-                    saveStateToDb(); // Save changes to Firestore
+                    saveStateToDb();
                 });
             });
         }
@@ -778,14 +767,12 @@
             });
         }
 
-        // Function to render all dashboards based on current data
         function renderAllDashboards() {
             renderKpiDashboard();
             renderLeaderboard();
             renderNewStartersDashboard();
             renderNewStartersLeaderboard();
             renderTimeToEndorseDashboard();
-            // Only render reporting if it's the active tab
             if (!reportingDashboard.classList.contains('hidden')) {
                 renderReportingDashboard();
             }
@@ -793,6 +780,13 @@
 
         // --- Initial Load and Event Listeners ---
         window.onload = () => {
+            if (!auth) {
+                clearTimeout(connectionTimeout);
+                userInfoDiv.textContent = "Error: Application is not configured correctly.";
+                userInfoDiv.classList.add('text-red-500');
+                return; 
+            }
+
             signIn();
 
             kpisTab.addEventListener('click', () => switchTab('kpis'));

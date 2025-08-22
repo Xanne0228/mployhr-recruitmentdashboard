@@ -52,6 +52,7 @@
     <div class="min-h-screen p-8">
         <div class="max-w-7xl mx-auto">
             <h1 class="text-4xl font-extrabold text-center text-gray-900 mb-2">MPloyHR Recruitment Dashboard</h1>
+            <div id="user-info" class="text-center text-sm text-gray-500 mb-4">Connecting...</div>
 
             <div class="flex justify-center mb-8 tab-buttons">
                 <button id="kpis-tab" class="tab-button px-6 py-2 rounded-l-full font-semibold bg-indigo-600 text-white shadow-lg" data-tab="kpis">
@@ -86,7 +87,7 @@
 
                 <!-- New Starters Dashboard -->
                 <div id="new-starters-dashboard" class="hidden">
-                    <p class="text-center text-sm text-gray-500 mb-6">Note: This is a **monthly** dashboard. Fallouts are defined as staff leaving within **30 days** of their commencement date.</p>
+                    <p class="text-center text-sm text-gray-500 mb-6">Note: This is a <strong>monthly</strong> dashboard. Fallouts are defined as staff leaving within <strong>30 days</strong> of their commencement date.</p>
                     <div id="new-starters-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- New Starters cards will be dynamically rendered here -->
                     </div>
@@ -150,8 +151,8 @@
                         <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
                             <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Monthly New Starters vs. Fallouts</h3>
                             <canvas id="new-starters-chart"></canvas>
-                         </div>
-                         <!-- Time to Endorse Chart -->
+                           </div>
+                           <!-- Time to Endorse Chart -->
                         <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
                             <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Average Time to Endorse (Days)</h3>
                             <canvas id="endorsement-time-chart"></canvas>
@@ -163,8 +164,23 @@
         </div>
     </div>
     
-    <script>
-        // Define new daily KPI targets
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase Configuration ---
+        // These global variables are provided by the environment.
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-dashboard-app';
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // --- App Constants and Initial Data ---
         const kpiDailyTargets = {
             seekApplicationScreening: 5, // < 5, so target is 4 or less
             leadGeneration: 2,
@@ -177,7 +193,6 @@
         const recruitmentConsultants = ['Catherine', 'Jade', 'Jewel', 'Marvin', 'Lorenz', 'Roxanne', 'Maria', 'Belle'];
         const weeklyConsultants = ['Catherine', 'Jade', 'Jewel', 'Marvin', 'Lorenz'];
 
-        // Helper function to create initial daily data
         function createDailyData() {
             const dailyData = {};
             weekdays.forEach(day => dailyData[day.toLowerCase()] = 0);
@@ -201,11 +216,14 @@
 
         const initialEndorsementData = [];
 
-        let currentKpiData = JSON.parse(localStorage.getItem('kpiData')) || initialTeamData;
-        let currentNewStartersData = JSON.parse(localStorage.getItem('newStartersData')) || initialNewStartersData;
-        let currentEndorsementData = JSON.parse(localStorage.getItem('endorsementData')) || initialEndorsementData;
+        // --- App State ---
+        let currentKpiData = initialTeamData;
+        let currentNewStartersData = initialNewStartersData;
+        let currentEndorsementData = initialEndorsementData;
+        let dbDocRef; // Reference to the Firestore document
+        let userId; // Current user's ID
 
-        // Get all the DOM elements
+        // --- DOM Elements ---
         const kpisTab = document.getElementById('kpis-tab');
         const newStartersTab = document.getElementById('new-starters-tab');
         const timeToEndorseTab = document.getElementById('time-to-endorse-tab');
@@ -227,11 +245,75 @@
         const recruiterNameInput = document.getElementById('recruiter-name-input');
         const receivedDateInput = document.getElementById('received-date-input');
         const endorsedDateInput = document.getElementById('endorsed-date-input');
+        const userInfoDiv = document.getElementById('user-info');
         
         let kpiScoresChart, newStartersChart, endorsementTimeChart;
         let editingId = null;
 
-        // Helper function to show a temporary message box
+        // --- Firebase Authentication and Data Sync ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                userInfoDiv.textContent = `Connected as: ${userId}`;
+                
+                // Path for public, collaborative data.
+                // A valid document path must have an even number of segments.
+                const docPath = `/artifacts/${appId}/public/data/dashboard/state`;
+                dbDocRef = doc(db, docPath);
+
+                // Listen for real-time updates
+                onSnapshot(dbDocRef, (doc) => {
+                    if (doc.exists()) {
+                        const data = doc.data();
+                        currentKpiData = data.kpiData || initialTeamData;
+                        currentNewStartersData = data.newStartersData || initialNewStartersData;
+                        currentEndorsementData = data.endorsementData || initialEndorsementData;
+                    } else {
+                        // If no data, initialize with default data
+                        console.log("No document found, initializing with default data.");
+                        saveStateToDb();
+                    }
+                    renderAllDashboards();
+                });
+
+            } else {
+                userInfoDiv.textContent = 'Not connected. Please sign in.';
+            }
+        });
+
+        // Sign in the user
+        async function signIn() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Authentication failed:", error);
+                userInfoDiv.textContent = 'Authentication failed.';
+            }
+        }
+
+        // Function to save the entire app state to Firestore
+        async function saveStateToDb() {
+            if (!dbDocRef) {
+                console.error("Firestore document reference not initialized.");
+                return;
+            }
+            try {
+                const state = {
+                    kpiData: currentKpiData,
+                    newStartersData: currentNewStartersData,
+                    endorsementData: currentEndorsementData
+                };
+                await setDoc(dbDocRef, state);
+            } catch (error) {
+                console.error("Error saving state to Firestore:", error);
+            }
+        }
+
+        // --- Helper Functions ---
         function showMessage(message, type = 'info') {
             const messageBox = document.createElement('div');
             messageBox.textContent = message;
@@ -245,20 +327,18 @@
             }
             document.body.appendChild(messageBox);
             setTimeout(() => {
-                document.body.removeChild(messageBox);
+                if (document.body.contains(messageBox)) {
+                    document.body.removeChild(messageBox);
+                }
             }, 3000);
         }
 
-        // Function to calculate the number of business days between two dates
         function calculateBusinessDays(startDate, endDate) {
             let count = 0;
             const currentDate = new Date(startDate);
             const end = new Date(endDate);
-
-            // Loop through each day from start to end date
             while (currentDate <= end) {
-                const dayOfWeek = currentDate.getDay(); // Sunday - 0, Monday - 1, etc.
-                // Check if the day is not a weekend (Saturday or Sunday)
+                const dayOfWeek = currentDate.getDay();
                 if (dayOfWeek !== 0 && dayOfWeek !== 6) {
                     count++;
                 }
@@ -267,31 +347,25 @@
             return count;
         }
 
-        // Function to calculate the weekly sum for a given KPI
         function getKpiWeeklyTotal(member, kpiKey) {
             return weekdays.reduce((sum, day) => sum + (member[kpiKey][day.toLowerCase()] || 0), 0);
         }
 
-        // Function to determine KPI status based on daily and weekly totals
         function getKPIStatus(kpiKey, totalValue) {
             const dailyTarget = kpiDailyTargets[kpiKey];
             const weeklyTarget = dailyTarget * weekdays.length;
 
             if (kpiKey === 'seekApplicationScreening') {
-                // "Less is better" metric: status is green if total is below target
                 return totalValue <= weeklyTarget ? 'bg-green-500' : 'bg-red-500';
             } else if (kpiKey === 'profileCreation') {
-                // Point-based metric: green for meeting or exceeding target
-                 return totalValue >= weeklyTarget ? 'bg-green-500' : 'bg-red-500';
+                return totalValue >= weeklyTarget ? 'bg-green-500' : 'bg-red-500';
             } else {
-                // "More is better" metric: green if >= target, yellow for 75% of target
                 if (totalValue >= weeklyTarget) return 'bg-green-500';
                 if (totalValue >= weeklyTarget * 0.75) return 'bg-yellow-500';
                 return 'bg-red-500';
             }
         }
         
-        // Function to calculate a total score based on all KPIs
         function calculateScore(member) {
             let score = 0;
             const kpiKeys = Object.keys(kpiDailyTargets);
@@ -304,13 +378,8 @@
                 let kpiScore = 0;
 
                 if (kpiKey === 'seekApplicationScreening') {
-                    // Less is better: 100% for meeting target, score decreases for every point over
                     kpiScore = Math.max(0, maxScorePerKpi * (weeklyTarget - totalValue + 1) / weeklyTarget);
-                } else if (kpiKey === 'profileCreation') {
-                    // Points-based: calculate score relative to target
-                    kpiScore = Math.min(maxScorePerKpi, (totalValue / weeklyTarget) * maxScorePerKpi);
                 } else {
-                    // More is better: score is percentage of target achieved
                     kpiScore = Math.min(maxScorePerKpi, (totalValue / weeklyTarget) * maxScorePerKpi);
                 }
                 score += kpiScore;
@@ -347,41 +416,41 @@
             return totalTime / endorsementData.length;
         }
 
-        // Moved switchTab function to global scope
+        // --- Rendering Functions ---
         function switchTab(tabId) {
+            // Hide all dashboards
             kpisDashboard.classList.add('hidden');
             newStartersDashboard.classList.add('hidden');
             timeToEndorseDashboard.classList.add('hidden');
             reportingDashboard.classList.add('hidden');
-            kpisTab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
-            newStartersTab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
-            timeToEndorseTab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
-            reportingTab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
-            kpisTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-            newStartersTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-            timeToEndorseTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-            reportingTab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
 
+            // Reset all tab styles
+            const tabs = [kpisTab, newStartersTab, timeToEndorseTab, reportingTab];
+            tabs.forEach(tab => {
+                tab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
+                tab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+            });
+
+            // Show the selected dashboard and set active tab style
+            let activeTab;
             if (tabId === 'kpis') {
                 kpisDashboard.classList.remove('hidden');
-                kpisTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
-                kpisTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-                renderKpiDashboard();
+                activeTab = kpisTab;
             } else if (tabId === 'new-starters') {
                 newStartersDashboard.classList.remove('hidden');
-                newStartersTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
-                newStartersTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-                renderNewStartersDashboard();
+                activeTab = newStartersTab;
             } else if (tabId === 'time-to-endorse') {
                 timeToEndorseDashboard.classList.remove('hidden');
-                timeToEndorseTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
-                timeToEndorseTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-                renderTimeToEndorseDashboard();
+                activeTab = timeToEndorseTab;
             } else if (tabId === 'reporting') {
                 reportingDashboard.classList.remove('hidden');
-                reportingTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
-                reportingTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-                renderReportingDashboard();
+                renderReportingDashboard(); // Charts need to be rendered when tab is visible
+                activeTab = reportingTab;
+            }
+            
+            if (activeTab) {
+                activeTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
+                activeTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
             }
         }
         
@@ -401,7 +470,7 @@
                                     </span>
                                     <div class="flex items-center space-x-2">
                                         <span class="text-sm text-gray-500">
-                                            (Daily Target: ${kpiKey === 'seekApplicationScreening' ? `<${kpiDailyTargets[kpiKey]}` : kpiDailyTargets[kpiKey]})
+                                            (Target: ${kpiKey === 'seekApplicationScreening' ? `<${kpiDailyTargets[kpiKey]}` : kpiDailyTargets[kpiKey]}/day)
                                         </span>
                                         <div class="w-3 h-3 rounded-full ${getKPIStatus(kpiKey, getKpiWeeklyTotal(member, kpiKey))}"></div>
                                     </div>
@@ -442,23 +511,7 @@
                     
                     currentKpiData = currentKpiData.map(m => m.name === name ? { ...m, [kpiKey]: { ...m[kpiKey], [day]: value } } : m);
                     
-                    const totalValue = getKpiWeeklyTotal(currentKpiData.find(m => m.name === name), kpiKey);
-                    const totalSpan = e.target.closest('.bg-gray-50').querySelector(`.total-${kpiKey.replace(/([A-Z])/g, '-$1').toLowerCase()}`);
-                    const statusDot = e.target.closest('.bg-gray-50').querySelector('.w-3.h-3.rounded-full');
-
-                    if (totalSpan) {
-                        totalSpan.textContent = totalValue;
-                    }
-                    if (statusDot) {
-                         statusDot.classList = `w-3 h-3 rounded-full ${getKPIStatus(kpiKey, totalValue)}`;
-                    }
-
-                    localStorage.setItem('kpiData', JSON.stringify(currentKpiData));
-                    renderLeaderboard();
-                    // Re-render charts
-                    if (document.getElementById('reporting-dashboard').classList.contains('hidden') === false) {
-                        renderReportingDashboard();
-                    }
+                    saveStateToDb(); // Save changes to Firestore
                 });
             });
         }
@@ -511,23 +564,9 @@
                     const kpiKey = e.target.dataset.kpi;
                     const value = parseInt(e.target.value, 10) || 0;
                     currentNewStartersData = currentNewStartersData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
-                    const falloutRateSpan = e.target.closest('.space-y-4').querySelector('.text-xl.font-bold');
-                    const newRate = calculateFalloutRate(
-                        currentNewStartersData.find(m => m.name === name).newStarters,
-                        currentNewStartersData.find(m => m.name === name).fallOuts
-                    ).toFixed(1);
-                    falloutRateSpan.textContent = `${newRate}%`;
-                    falloutRateSpan.classList = `text-xl font-bold ${getRateColor(parseFloat(newRate))}`;
-                    localStorage.setItem('newStartersData', JSON.stringify(currentNewStartersData));
-                    renderNewStartersLeaderboard();
-                    // Re-render charts
-                    if (document.getElementById('reporting-dashboard').classList.contains('hidden') === false) {
-                        renderReportingDashboard();
-                    }
+                    saveStateToDb(); // Save changes to Firestore
                 });
             });
-
-            renderNewStartersLeaderboard();
         }
 
         function renderNewStartersLeaderboard() {
@@ -548,46 +587,19 @@
             `).join('');
         }
         
-        function removeEndorsement(id) {
-            const confirmation = document.createElement('div');
-            confirmation.classList.add('message-box', 'bg-red-600');
-            confirmation.innerHTML = `
-                <p class="text-white mb-2">Are you sure you want to remove this endorsement?</p>
-                <div class="flex justify-center space-x-4">
-                    <button id="confirm-remove" class="px-4 py-2 bg-white text-red-600 font-semibold rounded-md hover:bg-gray-200 transition-colors">Yes, remove</button>
-                    <button id="cancel-remove" class="px-4 py-2 bg-gray-500 text-white font-semibold rounded-md hover:bg-gray-600 transition-colors">Cancel</button>
-                </div>
-            `;
-            document.body.appendChild(confirmation);
-
-            document.getElementById('confirm-remove').addEventListener('click', () => {
-                const indexToRemove = currentEndorsementData.findIndex(item => item.id == id);
-                if (indexToRemove !== -1) {
-                    currentEndorsementData.splice(indexToRemove, 1);
-                    localStorage.setItem('endorsementData', JSON.stringify(currentEndorsementData));
-                    renderTimeToEndorseDashboard();
-                    showMessage('Endorsement removed successfully!', 'success');
-                     // Re-render charts
-                    if (document.getElementById('reporting-dashboard').classList.contains('hidden') === false) {
-                        renderReportingDashboard();
-                    }
-                }
-                document.body.removeChild(confirmation);
-            });
-
-            document.getElementById('cancel-remove').addEventListener('click', () => {
-                document.body.removeChild(confirmation);
-            });
+        window.removeEndorsement = (id) => {
+            currentEndorsementData = currentEndorsementData.filter(item => item.id != id);
+            saveStateToDb();
+            showMessage('Endorsement removed successfully!', 'success');
         }
 
-        function startEditEndorsement(id) {
-            const indexToEdit = currentEndorsementData.findIndex(item => item.id == id);
-            if (indexToEdit === -1) {
+        window.startEditEndorsement = (id) => {
+            const endorsement = currentEndorsementData.find(item => item.id == id);
+            if (!endorsement) {
                 showMessage('Error: Endorsement not found.', 'error');
                 return;
             }
             editingId = id;
-            const endorsement = currentEndorsementData[indexToEdit];
             candidateNameInput.value = endorsement.candidateName;
             positionInput.value = endorsement.position;
             clientNameInput.value = endorsement.clientName;
@@ -610,7 +622,6 @@
             const receivedDate = new Date(receivedDateStr);
             const endorsedDate = new Date(endorsedDateStr);
 
-            // Validation
             if (endorsedDate < receivedDate) {
                 showMessage('Endorsed Date cannot be before Received Date.', 'error');
                 return;
@@ -631,7 +642,7 @@
             entryToUpdate.endorsedDate = endorsedDateStr;
             entryToUpdate.endorsementTime = endorsementTime;
             
-            localStorage.setItem('endorsementData', JSON.stringify(currentEndorsementData));
+            saveStateToDb();
             
             editingId = null;
             addEndorsementBtn.textContent = 'Add Endorsement';
@@ -642,12 +653,7 @@
             receivedDateInput.value = '';
             endorsedDateInput.value = '';
 
-            renderTimeToEndorseDashboard();
             showMessage('Changes saved successfully!', 'success');
-            // Re-render charts
-            if (document.getElementById('reporting-dashboard').classList.contains('hidden') === false) {
-                renderReportingDashboard();
-            }
         }
 
         function renderTimeToEndorseDashboard() {
@@ -716,15 +722,13 @@
         }
 
         function renderReportingDashboard() {
-            // Destroy existing charts if they exist to prevent duplicates
             if (kpiScoresChart) kpiScoresChart.destroy();
             if (newStartersChart) newStartersChart.destroy();
             if (endorsementTimeChart) endorsementTimeChart.destroy();
 
-            // Prepare data for the KPI Scores Chart
             const kpiScores = currentKpiData.map(member => calculateScore(member));
             const kpiScoresData = {
-                labels: initialTeamData.map(member => member.name),
+                labels: weeklyConsultants,
                 datasets: [{
                     label: 'Weekly KPI Score (%)',
                     data: kpiScores,
@@ -734,7 +738,6 @@
                 }]
             };
 
-            // Prepare data for the New Starters Chart
             const newStartersData = {
                 labels: recruitmentConsultants,
                 datasets: [{
@@ -752,81 +755,55 @@
                 }]
             };
 
-            // Prepare data for the Time to Endorse Chart
             const endorsementTimes = recruitmentConsultants.map(recruiter => calculateRecruiterAverageTime(recruiter));
             const endorsementTimeData = {
-                 labels: recruitmentConsultants,
-                 datasets: [{
-                     label: 'Average Time to Endorse (Days)',
-                     data: endorsementTimes,
-                     backgroundColor: 'rgba(251, 191, 36, 0.6)',
-                     borderColor: 'rgba(251, 191, 36, 1)',
-                     borderWidth: 1
-                 }]
+                labels: recruitmentConsultants,
+                datasets: [{
+                    label: 'Average Time to Endorse (Days)',
+                    data: endorsementTimes,
+                    backgroundColor: 'rgba(251, 191, 36, 0.6)',
+                    borderColor: 'rgba(251, 191, 36, 1)',
+                    borderWidth: 1
+                }]
             };
 
-            // Render KPI Scores Chart
-            const kpiScoresCtx = document.getElementById('kpi-scores-chart').getContext('2d');
-            kpiScoresChart = new Chart(kpiScoresCtx, {
-                type: 'bar',
-                data: kpiScoresData,
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    }
-                }
+            kpiScoresChart = new Chart(document.getElementById('kpi-scores-chart').getContext('2d'), {
+                type: 'bar', data: kpiScoresData, options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
             });
-
-            // Render New Starters Chart
-            const newStartersCtx = document.getElementById('new-starters-chart').getContext('2d');
-            newStartersChart = new Chart(newStartersCtx, {
-                type: 'bar',
-                data: newStartersData,
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: { stacked: true },
-                        y: { stacked: true }
-                    }
-                }
+            newStartersChart = new Chart(document.getElementById('new-starters-chart').getContext('2d'), {
+                type: 'bar', data: newStartersData, options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true } } }
             });
-
-            // Render Endorsement Time Chart
-            const endorsementTimeCtx = document.getElementById('endorsement-time-chart').getContext('2d');
-            endorsementTimeChart = new Chart(endorsementTimeCtx, {
-                type: 'bar',
-                data: endorsementTimeData,
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                        }
-                    }
-                }
+            endorsementTimeChart = new Chart(document.getElementById('endorsement-time-chart').getContext('2d'), {
+                type: 'bar', data: endorsementTimeData, options: { responsive: true, scales: { y: { beginAtZero: true } } }
             });
         }
 
-        window.onload = () => {
-            window.removeEndorsement = removeEndorsement;
-            window.startEditEndorsement = startEditEndorsement;
-
+        // Function to render all dashboards based on current data
+        function renderAllDashboards() {
             renderKpiDashboard();
-            renderNewStartersDashboard();
-            renderTimeToEndorseDashboard();
             renderLeaderboard();
-            
+            renderNewStartersDashboard();
+            renderNewStartersLeaderboard();
+            renderTimeToEndorseDashboard();
+            // Only render reporting if it's the active tab
+            if (!reportingDashboard.classList.contains('hidden')) {
+                renderReportingDashboard();
+            }
+        }
+
+        // --- Initial Load and Event Listeners ---
+        window.onload = () => {
+            signIn();
+
             kpisTab.addEventListener('click', () => switchTab('kpis'));
             newStartersTab.addEventListener('click', () => switchTab('new-starters'));
             timeToEndorseTab.addEventListener('click', () => switchTab('time-to-endorse'));
             reportingTab.addEventListener('click', () => switchTab('reporting'));
 
             addEndorsementBtn.addEventListener('click', () => {
-                if (editingId === null) {
+                if (editingId !== null) {
+                    saveEndorsementChanges();
+                } else {
                     const candidateName = candidateNameInput.value.trim();
                     const position = positionInput.value.trim();
                     const clientName = clientNameInput.value.trim();
@@ -857,8 +834,8 @@
                         endorsedDate: endorsedDateStr,
                         endorsementTime
                     });
-                    localStorage.setItem('endorsementData', JSON.stringify(currentEndorsementData));
-                    renderTimeToEndorseDashboard();
+                    
+                    saveStateToDb();
                     
                     candidateNameInput.value = '';
                     positionInput.value = '';
@@ -868,11 +845,6 @@
                     endorsedDateInput.value = '';
 
                     showMessage('Endorsement added successfully!', 'success');
-                    if (document.getElementById('reporting-dashboard').classList.contains('hidden') === false) {
-                        renderReportingDashboard();
-                    }
-                } else {
-                    saveEndorsementChanges();
                 }
             });
         };

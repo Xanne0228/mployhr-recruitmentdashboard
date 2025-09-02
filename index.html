@@ -26,7 +26,7 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .card-container:hover {
-            transform: scale(1.03);
+            transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
         .message-box {
@@ -46,26 +46,57 @@
             90% { opacity: 1; }
             100% { opacity: 0; }
         }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+        }
+        .modal-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
-    <div class="min-h-screen p-8">
+    <div id="confirmation-modal" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center fade-in">
+            <h3 id="modal-title" class="text-2xl font-bold text-gray-800 mb-4">Are you sure?</h3>
+            <p id="modal-message" class="text-gray-600 mb-6">This action cannot be undone.</p>
+            <div class="flex justify-center space-x-4">
+                <button id="modal-confirm-btn" class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors">Confirm</button>
+                <button id="modal-cancel-btn" class="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition-colors">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="min-h-screen p-4 sm:p-8">
         <div class="max-w-7xl mx-auto">
             <h1 class="text-4xl font-extrabold text-center text-gray-900 mb-2">MPloyHR Recruitment Dashboard</h1>
             <div id="user-info" class="text-center text-sm text-gray-500 mb-4">Connecting...</div>
 
-            <div class="flex justify-center mb-8 tab-buttons">
-                <button id="kpis-tab" class="tab-button px-6 py-2 rounded-l-full font-semibold bg-indigo-600 text-white shadow-lg" data-tab="kpis">
-                    Weekly KPI Dashboard
+            <div class="flex justify-center flex-wrap mb-8 tab-buttons">
+                <button id="kpis-tab" class="tab-button px-6 py-2 rounded-l-full font-semibold bg-indigo-600 text-white shadow-lg flex items-center space-x-2" data-tab="kpis">
+                    <i class="fas fa-tachometer-alt"></i><span>KPIs</span>
                 </button>
-                <button id="new-starters-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100" data-tab="new-starters">
-                    New Starters Dashboard
+                <button id="monthly-log-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="monthly-log">
+                    <i class="fas fa-calendar-alt"></i><span>Monthly Log</span>
                 </button>
-                <button id="time-to-endorse-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100" data-tab="time-to-endorse">
-                    Time to Endorse
+                <button id="new-starters-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="new-starters">
+                    <i class="fas fa-user-plus"></i><span>New Starters</span>
                 </button>
-                <button id="reporting-tab" class="tab-button px-6 py-2 rounded-r-full font-semibold bg-white text-gray-700 hover:bg-gray-100" data-tab="reporting">
-                    Reporting
+                <button id="time-to-endorse-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="time-to-endorse">
+                    <i class="fas fa-clock"></i><span>Time to Endorse</span>
+                </button>
+                <button id="reporting-tab" class="tab-button px-6 py-2 rounded-r-full font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="reporting">
+                    <i class="fas fa-chart-line"></i><span>Reporting</span>
                 </button>
             </div>
 
@@ -85,9 +116,55 @@
                     </div>
                 </div>
 
+                <!-- Monthly Log Dashboard -->
+                <div id="monthly-log-dashboard" class="hidden">
+                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-100">
+                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">New Starter Monthly Log</h2>
+                        <!-- Form for new entry -->
+                        <div class="mb-8 p-6 bg-gray-50 rounded-xl border-2 border-dashed">
+                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                                <input id="log-name" type="text" placeholder="Name" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
+                                <input id="log-client" type="text" placeholder="Client" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
+                                <select id="log-recruiter" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"><option value="" disabled selected>Recruiter</option></select>
+                                <input id="log-roles" type="text" placeholder="Roles" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
+                                
+                                <div><label class="text-sm text-gray-500 block mb-1">Start Date</label><input id="log-start-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
+                                <div><label class="text-sm text-gray-500 block mb-1">End Date (if applicable)</label><input id="log-end-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
+                                
+                                <input id="log-notes" type="text" placeholder="Notes" class="lg:col-span-2 px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
+                                
+                                <div class="flex items-center space-x-2 lg:col-span-4">
+                                    <button id="add-log-entry-btn" class="flex-grow bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-indigo-700 transition-colors">Add Entry</button>
+                                    <button id="cancel-log-edit-btn" class="hidden bg-gray-500 text-white px-4 py-2 rounded-md font-semibold hover:bg-gray-600 transition-colors">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Table of entries -->
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recruiter</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monthly-log-table-body" class="bg-white divide-y divide-gray-200">
+                                    <!-- Log entries will be injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- New Starters Dashboard -->
                 <div id="new-starters-dashboard" class="hidden">
-                    <p class="text-center text-sm text-gray-500 mb-6">Note: This is the dashboard for <strong>August</strong>. Fallouts are defined as staff leaving within <strong>30 days</strong> of their commencement date.</p>
+                    <p id="new-starters-note" class="text-center text-sm text-gray-500 mb-6">Note: This is the dashboard for <strong></strong>. Fallouts are defined as staff leaving within <strong>30 days</strong> of their commencement date. Data is automatically calculated from the Monthly Log.</p>
                     <div id="new-starters-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- New Starters cards will be dynamically rendered here -->
                     </div>
@@ -103,38 +180,45 @@
 
                 <!-- Time to Endorse Dashboard -->
                 <div id="time-to-endorse-dashboard" class="hidden">
-                    <div class="max-w-xl mx-auto">
-                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Time to Endorse</h2>
-                        <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 print-hidden">
-                            <div class="flex flex-col items-center mb-6">
-                                <p class="text-lg text-gray-600 mb-2">Team Average Endorsement Time</p>
-                                <span id="average-endorsement-time" class="text-6xl font-extrabold text-indigo-600">0.0 Days</span>
-                            </div>
-                            <div class="space-y-4">
-                                <h3 class="text-xl font-bold text-gray-800">Add New Endorsement</h3>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <input id="candidate-name-input" type="text" placeholder="Candidate Name" class="col-span-2 px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
-                                    <input id="position-input" type="text" placeholder="Position" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
-                                    <input id="client-name-input" type="text" placeholder="Client Name" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
-                                    <select id="recruiter-name-input" class="col-span-2 px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
-                                        <option value="" disabled selected>Select Recruiter</option>
-                                    </select>
-                                    <div class="col-span-1">
-                                        <label for="received-date" class="text-sm text-gray-500 block mb-1">Received Date</label>
-                                        <input id="received-date-input" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
+                    <div class="max-w-4xl mx-auto space-y-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div class="lg:col-span-1">
+                                <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Time to Endorse</h2>
+                                <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 print-hidden">
+                                    <div class="flex flex-col items-center mb-6">
+                                        <p class="text-lg text-gray-600 mb-2">Team Average Endorsement Time</p>
+                                        <span id="average-endorsement-time" class="text-6xl font-extrabold text-indigo-600">0.0 Days</span>
                                     </div>
-                                    <div class="col-span-1">
-                                        <label for="endorsed-date" class="text-sm text-gray-500 block mb-1">Endorsed Date</label>
-                                        <input id="endorsed-date-input" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
+                                    <div class="space-y-4">
+                                        <h3 class="text-xl font-bold text-gray-800">Add New Endorsement</h3>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <input id="candidate-name-input" type="text" placeholder="Candidate Name" class="col-span-2 px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
+                                            <input id="position-input" type="text" placeholder="Position" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
+                                            <input id="client-name-input" type="text" placeholder="Client Name" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
+                                            <select id="recruiter-name-input" class="col-span-2 px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
+                                                <option value="" disabled selected>Select Recruiter</option>
+                                            </select>
+                                            <div class="col-span-1">
+                                                <label for="received-date" class="text-sm text-gray-500 block mb-1">Received Date</label>
+                                                <input id="received-date-input" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
+                                            </div>
+                                            <div class="col-span-1">
+                                                <label for="endorsed-date" class="text-sm text-gray-500 block mb-1">Endorsed Date</label>
+                                                <input id="endorsed-date-input" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <button id="add-endorsement-btn" class="flex-grow bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-indigo-700 transition-colors duration-200">Add Endorsement</button>
+                                            <button id="cancel-edit-btn" class="hidden bg-gray-500 text-white px-4 py-2 rounded-md font-semibold hover:bg-gray-600 transition-colors duration-200">Cancel</button>
+                                        </div>
+                                        <button id="clear-endorsements-btn" class="w-full text-sm text-red-500 hover:text-red-700 font-semibold mt-2">Clear All Endorsements</button>
                                     </div>
                                 </div>
-                                <button id="add-endorsement-btn" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-indigo-700 transition-colors duration-200">Add Endorsement</button>
                             </div>
-                        </div>
-
-                        <!-- Individual Recruiter Dashboards -->
-                        <div id="recruiter-dashboards-container" class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Recruiter cards will be dynamically rendered here -->
+                            <!-- Individual Recruiter Dashboards -->
+                            <div id="recruiter-dashboards-container" class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Recruiter cards will be dynamically rendered here -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -151,7 +235,7 @@
                         <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
                             <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Monthly New Starters vs. Fallouts</h3>
                             <canvas id="new-starters-chart"></canvas>
-                           </div>
+                        </div>
                             <!-- Time to Endorse Chart -->
                         <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
                             <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Average Time to Endorse (Days)</h3>
@@ -167,28 +251,31 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase Configuration ---
+        // --- Firebase Configuration and Initialization ---
         const firebaseConfig = {
             apiKey: "AIzaSyC2yY5dAYwQA4IOB5f-fBF_UHNQZseGumY",
             authDomain: "mployhr-recruitment-dashboard.firebaseapp.com",
             projectId: "mployhr-recruitment-dashboard",
-            storageBucket: "mployhr-recruitment-dashboard.appspot.com",
+            storageBucket: "mployhr-recruitment-dashboard.firebasestorage.app",
             messagingSenderId: "736940004987",
-            appId: "1:736940004987:web:5fec3958310a7912c7f4de",
+            appId: "1:736940004987:web:5fec3950310a7912c7f4de",
             measurementId: "G-ZWQE1FVHY4"
         };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-dashboard-app';
         
         let app, db, auth;
-        if (firebaseConfig.apiKey) {
+        try {
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
+            setLogLevel('debug');
+        } catch(e) {
+            console.error("Error initializing Firebase:", e);
         }
-        
+
+
         // --- App Constants and Initial Data ---
         const kpiWeeklyTargets = {
             seekApplicationScreening: 25, // < 25, so target is 24 or less
@@ -217,20 +304,27 @@
         }));
 
         const initialEndorsementData = [];
+        const initialMonthlyLogData = [];
+
+        // --- Philippine Holidays for September 2025 ---
+        const philippineHolidays = []; 
 
         // --- App State ---
         let currentKpiData = initialTeamData;
         let currentNewStartersData = initialNewStartersData;
         let currentEndorsementData = initialEndorsementData;
+        let currentMonthlyLogData = initialMonthlyLogData;
         let dbDocRef; 
         let userId; 
 
         // --- DOM Elements ---
         const kpisTab = document.getElementById('kpis-tab');
+        const monthlyLogTab = document.getElementById('monthly-log-tab');
         const newStartersTab = document.getElementById('new-starters-tab');
         const timeToEndorseTab = document.getElementById('time-to-endorse-tab');
         const reportingTab = document.getElementById('reporting-tab');
         const kpisDashboard = document.getElementById('kpis-dashboard');
+        const monthlyLogDashboard = document.getElementById('monthly-log-dashboard');
         const newStartersDashboard = document.getElementById('new-starters-dashboard');
         const timeToEndorseDashboard = document.getElementById('time-to-endorse-dashboard');
         const reportingDashboard = document.getElementById('reporting-dashboard');
@@ -241,6 +335,8 @@
         const averageTimeSpan = document.getElementById('average-endorsement-time');
         const recruiterDashboardsContainer = document.getElementById('recruiter-dashboards-container');
         const addEndorsementBtn = document.getElementById('add-endorsement-btn');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        const clearEndorsementsBtn = document.getElementById('clear-endorsements-btn');
         const candidateNameInput = document.getElementById('candidate-name-input');
         const positionInput = document.getElementById('position-input');
         const clientNameInput = document.getElementById('client-name-input');
@@ -248,9 +344,32 @@
         const receivedDateInput = document.getElementById('received-date-input');
         const endorsedDateInput = document.getElementById('endorsed-date-input');
         const userInfoDiv = document.getElementById('user-info');
-        
+        const newStartersNote = document.getElementById('new-starters-note').querySelector('strong');
+
+        // Monthly Log DOM Elements
+        const monthlyLogTableBody = document.getElementById('monthly-log-table-body');
+        const addLogEntryBtn = document.getElementById('add-log-entry-btn');
+        const cancelLogEditBtn = document.getElementById('cancel-log-edit-btn');
+        const logNameInput = document.getElementById('log-name');
+        const logClientInput = document.getElementById('log-client');
+        const logRecruiterInput = document.getElementById('log-recruiter');
+        const logRolesInput = document.getElementById('log-roles');
+        const logStartDateInput = document.getElementById('log-start-date');
+        const logEndDateInput = document.getElementById('log-end-date');
+        const logNotesInput = document.getElementById('log-notes');
+
+
+        // Modal elements
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
         let kpiScoresChart, newStartersChart, endorsementTimeChart;
         let editingId = null;
+        let editingLogId = null;
+        let onConfirmAction = () => {};
 
         // --- Firebase Authentication and Data Sync ---
         const connectionTimeout = setTimeout(() => {
@@ -265,18 +384,20 @@
                 clearTimeout(connectionTimeout); 
                 if (user) {
                     userId = user.uid;
-                    userInfoDiv.textContent = `Connected as: ${userId}`;
+                    userInfoDiv.innerHTML = `Connected as: <span class="font-mono bg-gray-200 px-1 rounded">${userId}</span>`;
                     userInfoDiv.classList.remove('text-red-500');
                     
-                    const docPath = `/artifacts/${appId}/public/data/dashboard/state`;
+                    const docPath = `/dashboard-state/main`;
                     dbDocRef = doc(db, docPath);
 
                     onSnapshot(dbDocRef, (doc) => {
                         if (doc.exists()) {
                             const data = doc.data();
                             currentKpiData = data.kpiData || initialTeamData;
-                            currentNewStartersData = data.newStartersData || initialNewStartersData;
                             currentEndorsementData = data.endorsementData || initialEndorsementData;
+                            currentMonthlyLogData = data.monthlyLogData || initialMonthlyLogData;
+                             // New starters data is now derived, so we calculate it
+                            updateNewStartersDashboardData();
                         } else {
                             console.log("No document found, initializing with default data.");
                             saveStateToDb();
@@ -285,7 +406,8 @@
                     });
 
                 } else {
-                    userInfoDiv.textContent = 'Not connected. Please sign in.';
+                    userInfoDiv.textContent = 'Not connected. Signing in...';
+                    await signIn();
                 }
             });
         }
@@ -293,13 +415,11 @@
         async function signIn() {
             if (!auth) return;
             try {
-                // The custom token from the environment can cause a mismatch if a specific
-                // firebaseConfig is hardcoded. By always signing in anonymously, we ensure
-                // the session is created within the correct Firebase project context.
+                await setPersistence(auth, browserLocalPersistence);
                 await signInAnonymously(auth);
             } catch (error) {
                 console.error("Authentication failed:", error);
-                userInfoDiv.textContent = 'Authentication failed.';
+                userInfoDiv.textContent = `Authentication failed: ${error.message}`;
                 userInfoDiv.classList.add('text-red-500');
             }
         }
@@ -310,10 +430,11 @@
                 return;
             }
             try {
+                // We no longer save newStartersData as it's calculated from the log.
                 const state = {
                     kpiData: currentKpiData,
-                    newStartersData: currentNewStartersData,
-                    endorsementData: currentEndorsementData
+                    endorsementData: currentEndorsementData,
+                    monthlyLogData: currentMonthlyLogData
                 };
                 await setDoc(dbDocRef, state);
             } catch (error) {
@@ -347,12 +468,21 @@
             const end = new Date(endDate);
             while (currentDate <= end) {
                 const dayOfWeek = currentDate.getDay();
-                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                const dateString = currentDate.toISOString().slice(0, 10);
+                if (dayOfWeek !== 0 && dayOfWeek !== 6 && !philippineHolidays.includes(dateString)) {
                     count++;
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
             }
-            return count;
+            return count > 0 ? count -1 : 0;
+        }
+
+        function calculateCalendarDays(startDate, endDate) {
+            if (!startDate || !endDate) return Infinity;
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const differenceInTime = end.getTime() - start.getTime();
+            return differenceInTime / (1000 * 3600 * 24);
         }
 
         function getKPIStatus(kpiKey, totalValue) {
@@ -379,15 +509,19 @@
 
                 if (weeklyTarget > 0) { // Avoid division by zero
                     if (kpiKey === 'seekApplicationScreening') {
-                        kpiScore = Math.max(0, maxScorePerKpi * (weeklyTarget - totalValue) / weeklyTarget);
+                        // Higher score for lower screening time
+                        const performance = Math.max(0, (weeklyTarget - totalValue) / weeklyTarget);
+                        kpiScore = maxScorePerKpi * performance;
                     } else {
-                        kpiScore = Math.min(maxScorePerKpi, (totalValue / weeklyTarget) * maxScorePerKpi);
+                        // Higher score for higher numbers
+                        const performance = Math.min(1, totalValue / weeklyTarget);
+                        kpiScore = performance * maxScorePerKpi;
                     }
                 }
                 score += kpiScore;
             });
             
-            return score;
+            return Math.max(0, score);
         }
         
         function calculateFalloutRate(newStarters, fallOuts) {
@@ -421,11 +555,12 @@
         // --- Rendering Functions ---
         function switchTab(tabId) {
             kpisDashboard.classList.add('hidden');
+            monthlyLogDashboard.classList.add('hidden');
             newStartersDashboard.classList.add('hidden');
             timeToEndorseDashboard.classList.add('hidden');
             reportingDashboard.classList.add('hidden');
 
-            const tabs = [kpisTab, newStartersTab, timeToEndorseTab, reportingTab];
+            const tabs = [kpisTab, monthlyLogTab, newStartersTab, timeToEndorseTab, reportingTab];
             tabs.forEach(tab => {
                 tab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
                 tab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
@@ -435,6 +570,9 @@
             if (tabId === 'kpis') {
                 kpisDashboard.classList.remove('hidden');
                 activeTab = kpisTab;
+            } else if (tabId === 'monthly-log') {
+                monthlyLogDashboard.classList.remove('hidden');
+                activeTab = monthlyLogTab;
             } else if (tabId === 'new-starters') {
                 newStartersDashboard.classList.remove('hidden');
                 activeTab = newStartersTab;
@@ -505,7 +643,33 @@
             });
         }
         
+        function updateNewStartersDashboardData() {
+            const calculatedStarters = recruitmentConsultants.map(name => ({ name, newStarters: 0, fallOuts: 0 }));
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+
+            currentMonthlyLogData.forEach(entry => {
+                const startDate = new Date(entry.startDate);
+                if (startDate.getMonth() === currentMonth && startDate.getFullYear() === currentYear) {
+                    const recruiter = calculatedStarters.find(r => r.name === entry.recruiter);
+                    if (recruiter) {
+                        recruiter.newStarters++;
+                        if (entry.endDate) {
+                            const daysBetween = calculateCalendarDays(entry.startDate, entry.endDate);
+                            if (daysBetween <= 30) {
+                                recruiter.fallOuts++;
+                            }
+                        }
+                    }
+                }
+            });
+            currentNewStartersData = calculatedStarters;
+        }
+
         function renderNewStartersDashboard() {
+            const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+            newStartersNote.textContent = currentMonth;
+
             newStartersCardsContainer.innerHTML = currentNewStartersData.map(member => `
                 <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
                     <div class="flex items-center mb-4">
@@ -513,29 +677,17 @@
                         <h3 class="text-xl font-bold text-gray-800">${member.name}</h3>
                     </div>
                     <div class="flex-1 space-y-4">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
                             <span class="text-gray-600 font-medium flex items-center">
                                 <i class="fas fa-user text-green-500 mr-2"></i> New Starters
                             </span>
-                            <input
-                                type="number"
-                                value="${member.newStarters}"
-                                data-name="${member.name}"
-                                data-kpi="newStarters"
-                                class="w-20 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200"
-                            />
+                            <span class="text-2xl font-bold text-green-700">${member.newStarters}</span>
                         </div>
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg">
                             <span class="text-gray-600 font-medium flex items-center">
                                 <i class="fas fa-user-times text-red-500 mr-2"></i> Fall Outs
                             </span>
-                            <input
-                                type="number"
-                                value="${member.fallOuts}"
-                                data-name="${member.name}"
-                                data-kpi="fallOuts"
-                                class="w-20 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200"
-                            />
+                            <span class="text-2xl font-bold text-red-700">${member.fallOuts}</span>
                         </div>
                         <div class="border-t border-gray-200 pt-4 flex items-center justify-between">
                             <span class="font-bold text-gray-800">Fall Out Rate</span>
@@ -546,16 +698,6 @@
                     </div>
                 </div>
             `).join('');
-
-            newStartersCardsContainer.querySelectorAll('input').forEach(input => {
-                input.addEventListener('input', (e) => {
-                    const name = e.target.dataset.name;
-                    const kpiKey = e.target.dataset.kpi;
-                    const value = parseInt(e.target.value, 10) || 0;
-                    currentNewStartersData = currentNewStartersData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
-                    saveStateToDb();
-                });
-            });
         }
 
         function renderNewStartersLeaderboard() {
@@ -575,11 +717,50 @@
                 </li>
             `).join('');
         }
+
+        function renderMonthlyLogDashboard() {
+            logRecruiterInput.innerHTML = `<option value="" disabled selected>Recruiter</option>` + recruitmentConsultants.map(name => `<option value="${name}">${name}</option>`).join('');
+
+            const sortedLog = [...currentMonthlyLogData].sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+
+            monthlyLogTableBody.innerHTML = sortedLog.map(entry => {
+                let isFallout = false;
+                if (entry.endDate) {
+                    const daysBetween = calculateCalendarDays(entry.startDate, entry.endDate);
+                    if (daysBetween >= 0 && daysBetween <= 30) {
+                        isFallout = true;
+                    }
+                }
+                const rowClass = isFallout ? 'bg-red-100 hover:bg-red-200 transition-colors' : 'hover:bg-gray-50 transition-colors';
+
+                return `
+                <tr class="${rowClass}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${entry.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.client}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.recruiter}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.startDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.endDate || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.roles}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.notes}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="startEditLogEntry('${entry.id}')" class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
+                        <button onclick="removeLogEntry('${entry.id}')" class="text-red-600 hover:text-red-900">Delete</button>
+                    </td>
+                </tr>
+            `}).join('');
+            if (sortedLog.length === 0) {
+                 monthlyLogTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">No entries yet. Add one above to get started.</td></tr>`;
+            }
+        }
         
         window.removeEndorsement = (id) => {
-            currentEndorsementData = currentEndorsementData.filter(item => item.id != id);
-            saveStateToDb();
-            showMessage('Endorsement removed successfully!', 'success');
+            onConfirmAction = () => {
+                currentEndorsementData = currentEndorsementData.filter(item => item.id != id);
+                saveStateToDb();
+                showMessage('Endorsement removed successfully!', 'success');
+                hideModal();
+            };
+            showModal('Confirm Deletion', 'Are you sure you want to remove this endorsement record?');
         }
 
         window.startEditEndorsement = (id) => {
@@ -596,7 +777,9 @@
             receivedDateInput.value = endorsement.receivedDate;
             endorsedDateInput.value = endorsement.endorsedDate;
             addEndorsementBtn.textContent = 'Save Changes';
+            cancelEditBtn.classList.remove('hidden');
             showMessage('Editing endorsement. Click Save Changes when done.', 'info');
+            candidateNameInput.focus();
         }
 
         function saveEndorsementChanges() {
@@ -633,26 +816,34 @@
             
             saveStateToDb();
             
+            resetEndorsementForm();
+            showMessage('Changes saved successfully!', 'success');
+        }
+
+        function resetEndorsementForm() {
             editingId = null;
             addEndorsementBtn.textContent = 'Add Endorsement';
+            cancelEditBtn.classList.add('hidden');
             candidateNameInput.value = '';
             positionInput.value = '';
             clientNameInput.value = '';
             recruiterNameInput.value = '';
             receivedDateInput.value = '';
             endorsedDateInput.value = '';
-
-            showMessage('Changes saved successfully!', 'success');
         }
 
         function renderTimeToEndorseDashboard() {
             const teamAverageTime = calculateTeamAverageTime(currentEndorsementData);
             averageTimeSpan.textContent = `${teamAverageTime.toFixed(1)} Days`;
 
+            const currentRecruiterValue = recruiterNameInput.value;
             recruiterNameInput.innerHTML = `<option value="" disabled selected>Select Recruiter</option>` + recruitmentConsultants.map(name => `<option value="${name}">${name}</option>`).join('');
+            if (currentRecruiterValue) {
+                recruiterNameInput.value = currentRecruiterValue;
+            }
 
             recruiterDashboardsContainer.innerHTML = recruitmentConsultants.map(recruiter => {
-                const recruiterEndorsements = currentEndorsementData.filter(item => item.recruiterName === recruiter);
+                const recruiterEndorsements = currentEndorsementData.filter(item => item.recruiterName === recruiter).sort((a, b) => new Date(b.receivedDate) - new Date(a.receivedDate));
                 const recruiterAverageTime = calculateRecruiterAverageTime(recruiter);
                 
                 return `
@@ -665,13 +856,13 @@
                             <p class="text-sm text-gray-600 mb-1">Average Time</p>
                             <span class="text-4xl font-bold text-indigo-500">${recruiterAverageTime.toFixed(1)} Days</span>
                         </div>
-                        <ul class="space-y-2 mt-4 border-t pt-4 max-h-48 overflow-y-auto">
-                            ${recruiterEndorsements.map(item => `
-                                <li class="p-3 rounded-lg bg-gray-50 border border-gray-200 text-sm">
+                        <ul class="space-y-2 mt-4 border-t pt-4 max-h-60 overflow-y-auto">
+                            ${recruiterEndorsements.length > 0 ? recruiterEndorsements.map(item => `
+                                <li class="p-3 rounded-lg bg-gray-50 border border-gray-200 text-sm hover:bg-indigo-50 transition-colors">
                                     <div class="flex items-center justify-between font-bold text-gray-800 mb-1">
-                                        <span>${item.candidateName}</span>
-                                        <div class="flex items-center space-x-2">
-                                            <span>${item.endorsementTime} days</span>
+                                        <span class="truncate pr-2">${item.candidateName}</span>
+                                        <div class="flex items-center space-x-2 flex-shrink-0">
+                                            <span class="bg-indigo-100 text-indigo-700 font-semibold px-2 py-0.5 rounded-full">${item.endorsementTime}d</span>
                                             <button onclick="startEditEndorsement('${item.id}')" class="text-indigo-500 hover:text-indigo-700">
                                                 <i class="fas fa-edit"></i>
                                             </button>
@@ -681,11 +872,11 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center justify-between text-xs text-gray-500">
-                                        <span>${item.position} (${item.clientName})</span>
-                                        <span>${item.receivedDate} to ${item.endorsedDate}</span>
+                                        <span class="truncate pr-2">${item.position} (${item.clientName})</span>
+                                        <span class="flex-shrink-0">${item.receivedDate} to ${item.endorsedDate}</span>
                                     </div>
                                 </li>
-                            `).join('')}
+                            `).join('') : '<li class="text-center text-gray-500 py-4">No endorsements recorded.</li>'}
                         </ul>
                     </div>
                 `;
@@ -760,7 +951,7 @@
                 type: 'bar', data: kpiScoresData, options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
             });
             newStartersChart = new Chart(document.getElementById('new-starters-chart').getContext('2d'), {
-                type: 'bar', data: newStartersData, options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true } } }
+                type: 'bar', data: newStartersData, options: { responsive: true, scales: { x: {}, y: { beginAtZero: true } } }
             });
             endorsementTimeChart = new Chart(document.getElementById('endorsement-time-chart').getContext('2d'), {
                 type: 'bar', data: endorsementTimeData, options: { responsive: true, scales: { y: { beginAtZero: true } } }
@@ -772,17 +963,70 @@
             renderLeaderboard();
             renderNewStartersDashboard();
             renderNewStartersLeaderboard();
+            renderMonthlyLogDashboard();
             renderTimeToEndorseDashboard();
             if (!reportingDashboard.classList.contains('hidden')) {
                 renderReportingDashboard();
             }
+        }
+        
+        // --- Monthly Log CRUD Functions ---
+        window.startEditLogEntry = (id) => {
+            const entry = currentMonthlyLogData.find(e => e.id == id);
+            if (!entry) return;
+            editingLogId = id;
+            logNameInput.value = entry.name;
+            logClientInput.value = entry.client;
+            logRecruiterInput.value = entry.recruiter;
+            logRolesInput.value = entry.roles;
+            logStartDateInput.value = entry.startDate;
+            logEndDateInput.value = entry.endDate || '';
+            logNotesInput.value = entry.notes;
+            addLogEntryBtn.textContent = 'Save Changes';
+            cancelLogEditBtn.classList.remove('hidden');
+        };
+
+        window.removeLogEntry = (id) => {
+            onConfirmAction = () => {
+                currentMonthlyLogData = currentMonthlyLogData.filter(e => e.id != id);
+                updateNewStartersDashboardData();
+                saveStateToDb();
+                showMessage('Log entry removed.', 'success');
+                hideModal();
+            };
+            showModal('Confirm Deletion', 'Are you sure you want to remove this log entry?');
+        };
+
+        function resetLogForm() {
+            editingLogId = null;
+            logNameInput.value = '';
+            logClientInput.value = '';
+            logRecruiterInput.value = '';
+            logRolesInput.value = '';
+            logStartDateInput.value = '';
+            logEndDateInput.value = '';
+            logNotesInput.value = '';
+            addLogEntryBtn.textContent = 'Add Entry';
+            cancelLogEditBtn.classList.add('hidden');
+        }
+
+
+        // --- Modal Functions ---
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            confirmationModal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            confirmationModal.classList.add('hidden');
         }
 
         // --- Initial Load and Event Listeners ---
         window.onload = () => {
             if (!auth) {
                 clearTimeout(connectionTimeout);
-                userInfoDiv.textContent = "Error: Application is not configured correctly.";
+                userInfoDiv.textContent = "Error: Application is not configured correctly. Firebase connection failed.";
                 userInfoDiv.classList.add('text-red-500');
                 return; 
             }
@@ -790,9 +1034,61 @@
             signIn();
 
             kpisTab.addEventListener('click', () => switchTab('kpis'));
+            monthlyLogTab.addEventListener('click', () => switchTab('monthly-log'));
             newStartersTab.addEventListener('click', () => switchTab('new-starters'));
             timeToEndorseTab.addEventListener('click', () => switchTab('time-to-endorse'));
             reportingTab.addEventListener('click', () => switchTab('reporting'));
+
+            cancelEditBtn.addEventListener('click', resetEndorsementForm);
+            cancelLogEditBtn.addEventListener('click', resetLogForm);
+            modalCancelBtn.addEventListener('click', hideModal);
+            modalConfirmBtn.addEventListener('click', () => onConfirmAction());
+
+            clearEndorsementsBtn.addEventListener('click', () => {
+                 onConfirmAction = () => {
+                    currentEndorsementData = [];
+                    saveStateToDb();
+                    showMessage('All endorsements cleared!', 'success');
+                    hideModal();
+                };
+                showModal('Clear All Endorsements', 'Are you sure you want to delete all endorsement records for everyone? This is irreversible.');
+            });
+
+            addLogEntryBtn.addEventListener('click', () => {
+                const newEntry = {
+                    id: editingLogId || Date.now(),
+                    name: logNameInput.value.trim(),
+                    client: logClientInput.value.trim(),
+                    recruiter: logRecruiterInput.value,
+                    roles: logRolesInput.value.trim(),
+                    startDate: logStartDateInput.value,
+                    endDate: logEndDateInput.value,
+                    notes: logNotesInput.value.trim()
+                };
+
+                if (!newEntry.name || !newEntry.client || !newEntry.recruiter || !newEntry.startDate) {
+                    showMessage('Please fill out Name, Client, Recruiter, and Start Date.', 'error');
+                    return;
+                }
+
+                if (newEntry.endDate && newEntry.startDate > newEntry.endDate) {
+                    showMessage('End Date cannot be before Start Date.', 'error');
+                    return;
+                }
+
+                if (editingLogId) {
+                    const index = currentMonthlyLogData.findIndex(e => e.id == editingLogId);
+                    currentMonthlyLogData[index] = newEntry;
+                    showMessage('Log entry updated!', 'success');
+                } else {
+                    currentMonthlyLogData.push(newEntry);
+                    showMessage('Log entry added!', 'success');
+                }
+                
+                resetLogForm();
+                updateNewStartersDashboardData();
+                saveStateToDb();
+            });
 
             addEndorsementBtn.addEventListener('click', () => {
                 if (editingId !== null) {
@@ -831,13 +1127,7 @@
                     
                     saveStateToDb();
                     
-                    candidateNameInput.value = '';
-                    positionInput.value = '';
-                    clientNameInput.value = '';
-                    recruiterNameInput.value = '';
-                    receivedDateInput.value = '';
-                    endorsedDateInput.value = '';
-
+                    resetEndorsementForm();
                     showMessage('Endorsement added successfully!', 'success');
                 }
             });

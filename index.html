@@ -164,6 +164,11 @@
 
                 <!-- New Starters Dashboard -->
                 <div id="new-starters-dashboard" class="hidden">
+                     <div class="flex justify-center items-center mb-6 space-x-4 bg-white p-4 rounded-full shadow-md max-w-md mx-auto">
+                        <label for="month-select" class="font-semibold text-gray-600">Select Period:</label>
+                        <select id="month-select" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></select>
+                        <select id="year-select" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></select>
+                    </div>
                     <p id="new-starters-note" class="text-center text-sm text-gray-500 mb-6">Note: This is the dashboard for <strong></strong>. Fallouts are defined as staff leaving within <strong>30 days</strong> of their commencement date. Data is automatically calculated from the Monthly Log.</p>
                     <div id="new-starters-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- New Starters cards will be dynamically rendered here -->
@@ -345,6 +350,8 @@
         const endorsedDateInput = document.getElementById('endorsed-date-input');
         const userInfoDiv = document.getElementById('user-info');
         const newStartersNote = document.getElementById('new-starters-note').querySelector('strong');
+        const monthSelect = document.getElementById('month-select');
+        const yearSelect = document.getElementById('year-select');
 
         // Monthly Log DOM Elements
         const monthlyLogTableBody = document.getElementById('monthly-log-table-body');
@@ -644,13 +651,14 @@
         }
         
         function updateNewStartersDashboardData() {
+            const selectedMonth = parseInt(monthSelect.value);
+            const selectedYear = parseInt(yearSelect.value);
+
             const calculatedStarters = recruitmentConsultants.map(name => ({ name, newStarters: 0, fallOuts: 0 }));
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
 
             currentMonthlyLogData.forEach(entry => {
                 const startDate = new Date(entry.startDate);
-                if (startDate.getMonth() === currentMonth && startDate.getFullYear() === currentYear) {
+                if (startDate.getMonth() === selectedMonth && startDate.getFullYear() === selectedYear) {
                     const recruiter = calculatedStarters.find(r => r.name === entry.recruiter);
                     if (recruiter) {
                         recruiter.newStarters++;
@@ -667,8 +675,11 @@
         }
 
         function renderNewStartersDashboard() {
-            const currentMonth = new Date().toLocaleString('default', { month: 'long' });
-            newStartersNote.textContent = currentMonth;
+            const selectedMonth = parseInt(monthSelect.value);
+            const selectedYear = parseInt(yearSelect.value);
+            const monthName = new Date(selectedYear, selectedMonth).toLocaleString('default', { month: 'long' });
+
+            newStartersNote.textContent = `${monthName} ${selectedYear}`;
 
             newStartersCardsContainer.innerHTML = currentNewStartersData.map(member => `
                 <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
@@ -961,6 +972,7 @@
         function renderAllDashboards() {
             renderKpiDashboard();
             renderLeaderboard();
+            updateNewStartersDashboardData();
             renderNewStartersDashboard();
             renderNewStartersLeaderboard();
             renderMonthlyLogDashboard();
@@ -1022,6 +1034,33 @@
             confirmationModal.classList.add('hidden');
         }
 
+        function populateDateFilters() {
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth();
+
+            // Populate years from 2025 to current year
+            for (let year = 2025; year <= currentYear; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+
+            // Populate months
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            months.forEach((month, index) => {
+                 const option = document.createElement('option');
+                option.value = index;
+                option.textContent = month;
+                monthSelect.appendChild(option);
+            });
+
+            // Set default to current month and year
+            yearSelect.value = currentYear;
+            monthSelect.value = currentMonth;
+        }
+
+
         // --- Initial Load and Event Listeners ---
         window.onload = () => {
             if (!auth) {
@@ -1030,7 +1069,8 @@
                 userInfoDiv.classList.add('text-red-500');
                 return; 
             }
-
+            
+            populateDateFilters();
             signIn();
 
             kpisTab.addEventListener('click', () => switchTab('kpis'));
@@ -1038,6 +1078,9 @@
             newStartersTab.addEventListener('click', () => switchTab('new-starters'));
             timeToEndorseTab.addEventListener('click', () => switchTab('time-to-endorse'));
             reportingTab.addEventListener('click', () => switchTab('reporting'));
+
+            monthSelect.addEventListener('change', renderAllDashboards);
+            yearSelect.addEventListener('change', renderAllDashboards);
 
             cancelEditBtn.addEventListener('click', resetEndorsementForm);
             cancelLogEditBtn.addEventListener('click', resetLogForm);

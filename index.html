@@ -86,14 +86,14 @@
                 <button id="kpis-tab" class="tab-button px-6 py-2 rounded-l-full font-semibold bg-indigo-600 text-white shadow-lg flex items-center space-x-2" data-tab="kpis">
                     <i class="fas fa-tachometer-alt"></i><span>KPIs</span>
                 </button>
-                <button id="monthly-log-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="monthly-log">
-                    <i class="fas fa-calendar-alt"></i><span>Monthly Log</span>
-                </button>
                 <button id="new-starters-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="new-starters">
                     <i class="fas fa-user-plus"></i><span>New Starters</span>
                 </button>
                 <button id="time-to-endorse-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="time-to-endorse">
                     <i class="fas fa-clock"></i><span>Time to Endorse</span>
+                </button>
+                 <button id="admin-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="admin">
+                    <i class="fas fa-cogs"></i><span>Admin</span>
                 </button>
                 <button id="reporting-tab" class="tab-button px-6 py-2 rounded-r-full font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="reporting">
                     <i class="fas fa-chart-line"></i><span>Reporting</span>
@@ -103,11 +103,12 @@
             <div id="dashboard-content" class="fade-in">
                 <!-- Weekly KPI Dashboard -->
                 <div id="kpis-dashboard">
+                    <h2 class="text-xl font-semibold text-center text-gray-600 mb-6">Displaying Live Data For Week Starting: <span id="kpi-week-start-date" class="font-bold text-indigo-600"></span></h2>
                     <div id="kpi-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- KPI cards will be dynamically rendered here -->
                     </div>
                     <div id="leaderboard-container" class="mt-12">
-                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Leaderboard</h2>
+                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">This Week's Leaderboard</h2>
                         <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-lg mx-auto">
                             <ul id="leaderboard-list" class="space-y-4">
                                 <!-- Leaderboard list will be injected here -->
@@ -116,10 +117,72 @@
                     </div>
                 </div>
 
-                <!-- Monthly Log Dashboard -->
-                <div id="monthly-log-dashboard" class="hidden">
+                <!-- Admin Dashboard -->
+                <div id="admin-dashboard" class="hidden">
+                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-100 max-w-3xl mx-auto">
+                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Admin & Data Management</h2>
+                        <div class="space-y-8">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">Weekly KPI Snapshot</h3>
+                                <div class="p-6 bg-gray-50 rounded-xl border-2 border-dashed flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <p class="text-gray-600 text-center sm:text-left">Finalize the current week's KPI data. This will save a permanent snapshot and reset the KPI board for the new week.</p>
+                                    <div class="flex space-x-2">
+                                        <button id="export-kpi-history-btn" class="w-full sm:w-auto bg-green-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-green-700 transition-colors flex-shrink-0">
+                                            Export History
+                                        </button>
+                                        <button id="finalize-week-btn" class="w-full sm:w-auto bg-indigo-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-indigo-700 transition-colors flex-shrink-0">
+                                            Finalize & Lock Week
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                             <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">KPI History</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Week Ending</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Team Score</th>
+                                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="kpi-history-table-body" class="bg-white divide-y divide-gray-200">
+                                            <!-- KPI history will be injected here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Starters Hub Dashboard -->
+                <div id="new-starters-dashboard" class="hidden space-y-8">
+                     <div class="flex justify-center items-center mb-2 space-x-4 bg-white p-4 rounded-full shadow-md max-w-md mx-auto">
+                        <label for="month-select" class="font-semibold text-gray-600">Select Period:</label>
+                        <select id="month-select" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></select>
+                        <select id="year-select" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></select>
+                    </div>
+                    
+                    <div>
+                        <p id="new-starters-note" class="text-center text-sm text-gray-500 mb-6">Dashboard for <strong></strong>. Fallouts are staff leaving within <strong>30 days</strong>.</p>
+                        <div id="new-starters-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- New Starters cards will be dynamically rendered here -->
+                        </div>
+                    </div>
+                    
+                    <div id="new-starters-leaderboard-container">
+                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">New Starters Leaderboard</h2>
+                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-lg mx-auto">
+                            <ul id="new-starters-leaderboard-list" class="space-y-4">
+                                <!-- New starters leaderboard will be injected here -->
+                            </ul>
+                        </div>
+                    </div>
+
                     <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-100">
-                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">New Starter Monthly Log</h2>
+                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Monthly Log & Data Entry</h2>
                         <!-- Form for new entry -->
                         <div class="mb-8 p-6 bg-gray-50 rounded-xl border-2 border-dashed">
                              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
@@ -139,6 +202,14 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="flex justify-end mb-4">
+                             <button id="export-csv-btn" class="bg-green-600 text-white px-6 py-2 rounded-md font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
+                                <i class="fas fa-file-csv"></i>
+                                <span>Export to CSV</span>
+                            </button>
+                        </div>
+
                         <!-- Table of entries -->
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -158,27 +229,6 @@
                                     <!-- Log entries will be injected here -->
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- New Starters Dashboard -->
-                <div id="new-starters-dashboard" class="hidden">
-                     <div class="flex justify-center items-center mb-6 space-x-4 bg-white p-4 rounded-full shadow-md max-w-md mx-auto">
-                        <label for="month-select" class="font-semibold text-gray-600">Select Period:</label>
-                        <select id="month-select" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></select>
-                        <select id="year-select" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></select>
-                    </div>
-                    <p id="new-starters-note" class="text-center text-sm text-gray-500 mb-6">Note: This is the dashboard for <strong></strong>. Fallouts are defined as staff leaving within <strong>30 days</strong> of their commencement date. Data is automatically calculated from the Monthly Log.</p>
-                    <div id="new-starters-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- New Starters cards will be dynamically rendered here -->
-                    </div>
-                    <div id="new-starters-leaderboard-container" class="mt-12">
-                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">New Starters Leaderboard</h2>
-                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-lg mx-auto">
-                            <ul id="new-starters-leaderboard-list" class="space-y-4">
-                                <!-- New starters leaderboard will be injected here -->
-                            </ul>
                         </div>
                     </div>
                 </div>
@@ -231,9 +281,14 @@
                 <!-- Reporting Dashboard -->
                 <div id="reporting-dashboard" class="hidden">
                     <div class="max-w-5xl mx-auto space-y-12">
+                         <!-- Historical KPI Scores Chart -->
+                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                            <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Historical Weekly KPI Performance</h3>
+                            <canvas id="historical-kpi-chart"></canvas>
+                        </div>
                         <!-- KPI Scores Chart -->
                         <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
-                            <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Weekly KPI Scores</h3>
+                            <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Current Week KPI Scores</h3>
                             <canvas id="kpi-scores-chart"></canvas>
                         </div>
                         <!-- New Starters vs Fallouts Chart -->
@@ -285,7 +340,7 @@
         const kpiWeeklyTargets = {
             seekApplicationScreening: 25, // < 25, so target is 24 or less
             leadGeneration: 10,
-            zoomInterviews: 15,
+            zoomInterviews: 10,
             endorsementCandidates: 5,
             profileCreation: 50 // Points, not a count
         };
@@ -310,12 +365,15 @@
 
         const initialEndorsementData = [];
         const initialMonthlyLogData = [];
+        const initialKpiHistory = [];
 
         // --- Philippine Holidays for September 2025 ---
         const philippineHolidays = []; 
 
         // --- App State ---
         let currentKpiData = initialTeamData;
+        let kpiHistory = initialKpiHistory;
+        let kpiWeekStartDate = new Date().toISOString().slice(0, 10);
         let currentNewStartersData = initialNewStartersData;
         let currentEndorsementData = initialEndorsementData;
         let currentMonthlyLogData = initialMonthlyLogData;
@@ -324,15 +382,17 @@
 
         // --- DOM Elements ---
         const kpisTab = document.getElementById('kpis-tab');
-        const monthlyLogTab = document.getElementById('monthly-log-tab');
         const newStartersTab = document.getElementById('new-starters-tab');
         const timeToEndorseTab = document.getElementById('time-to-endorse-tab');
+        const adminTab = document.getElementById('admin-tab');
         const reportingTab = document.getElementById('reporting-tab');
+        
         const kpisDashboard = document.getElementById('kpis-dashboard');
-        const monthlyLogDashboard = document.getElementById('monthly-log-dashboard');
         const newStartersDashboard = document.getElementById('new-starters-dashboard');
         const timeToEndorseDashboard = document.getElementById('time-to-endorse-dashboard');
+        const adminDashboard = document.getElementById('admin-dashboard');
         const reportingDashboard = document.getElementById('reporting-dashboard');
+
         const kpiCardsContainer = document.getElementById('kpi-cards-container');
         const leaderboardList = document.getElementById('leaderboard-list');
         const newStartersCardsContainer = document.getElementById('new-starters-cards-container');
@@ -353,6 +413,13 @@
         const monthSelect = document.getElementById('month-select');
         const yearSelect = document.getElementById('year-select');
 
+        // Admin DOM Elements
+        const finalizeWeekBtn = document.getElementById('finalize-week-btn');
+        const kpiHistoryTableBody = document.getElementById('kpi-history-table-body');
+        const kpiWeekStartDateSpan = document.getElementById('kpi-week-start-date');
+        const exportKpiHistoryBtn = document.getElementById('export-kpi-history-btn');
+
+
         // Monthly Log DOM Elements
         const monthlyLogTableBody = document.getElementById('monthly-log-table-body');
         const addLogEntryBtn = document.getElementById('add-log-entry-btn');
@@ -365,6 +432,8 @@
         const logEndDateInput = document.getElementById('log-end-date');
         const logNotesInput = document.getElementById('log-notes');
 
+        // Monthly Report DOM Elements
+        const exportCsvBtn = document.getElementById('export-csv-btn');
 
         // Modal elements
         const confirmationModal = document.getElementById('confirmation-modal');
@@ -373,7 +442,7 @@
         const modalConfirmBtn = document.getElementById('modal-confirm-btn');
         const modalCancelBtn = document.getElementById('modal-cancel-btn');
 
-        let kpiScoresChart, newStartersChart, endorsementTimeChart;
+        let kpiScoresChart, newStartersChart, endorsementTimeChart, historicalKpiChart;
         let editingId = null;
         let editingLogId = null;
         let onConfirmAction = () => {};
@@ -400,10 +469,21 @@
                     onSnapshot(dbDocRef, (doc) => {
                         if (doc.exists()) {
                             const data = doc.data();
-                            currentKpiData = data.kpiData || initialTeamData;
+                            currentKpiData = data.currentKpiData || initialTeamData;
+                            kpiHistory = data.kpiHistory || initialKpiHistory;
+                            kpiWeekStartDate = data.kpiWeekStartDate || new Date().toISOString().slice(0, 10);
                             currentEndorsementData = data.endorsementData || initialEndorsementData;
                             currentMonthlyLogData = data.monthlyLogData || initialMonthlyLogData;
-                             // New starters data is now derived, so we calculate it
+
+                            if (currentMonthlyLogData.length > 0 && !yearSelect.dataset.userModified) {
+                                const mostRecentEntry = currentMonthlyLogData.reduce((latest, entry) => {
+                                    return new Date(entry.startDate) > new Date(latest.startDate) ? entry : latest;
+                                });
+                                const mostRecentDate = new Date(mostRecentEntry.startDate);
+                                yearSelect.value = mostRecentDate.getFullYear();
+                                monthSelect.value = mostRecentDate.getMonth();
+                            }
+
                             updateNewStartersDashboardData();
                         } else {
                             console.log("No document found, initializing with default data.");
@@ -437,9 +517,10 @@
                 return;
             }
             try {
-                // We no longer save newStartersData as it's calculated from the log.
                 const state = {
-                    kpiData: currentKpiData,
+                    currentKpiData: currentKpiData,
+                    kpiHistory: kpiHistory,
+                    kpiWeekStartDate: kpiWeekStartDate,
                     endorsementData: currentEndorsementData,
                     monthlyLogData: currentMonthlyLogData
                 };
@@ -450,6 +531,16 @@
         }
 
         // --- Helper Functions ---
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+        const debouncedSaveStateToDb = debounce(saveStateToDb, 500); // Save after 500ms of inactivity
+
         function showMessage(message, type = 'info') {
             const messageBox = document.createElement('div');
             messageBox.textContent = message;
@@ -516,11 +607,9 @@
 
                 if (weeklyTarget > 0) { // Avoid division by zero
                     if (kpiKey === 'seekApplicationScreening') {
-                        // Higher score for lower screening time
                         const performance = Math.max(0, (weeklyTarget - totalValue) / weeklyTarget);
                         kpiScore = maxScorePerKpi * performance;
                     } else {
-                        // Higher score for higher numbers
                         const performance = Math.min(1, totalValue / weeklyTarget);
                         kpiScore = performance * maxScorePerKpi;
                     }
@@ -562,12 +651,12 @@
         // --- Rendering Functions ---
         function switchTab(tabId) {
             kpisDashboard.classList.add('hidden');
-            monthlyLogDashboard.classList.add('hidden');
             newStartersDashboard.classList.add('hidden');
             timeToEndorseDashboard.classList.add('hidden');
+            adminDashboard.classList.add('hidden');
             reportingDashboard.classList.add('hidden');
 
-            const tabs = [kpisTab, monthlyLogTab, newStartersTab, timeToEndorseTab, reportingTab];
+            const tabs = [kpisTab, newStartersTab, timeToEndorseTab, adminTab, reportingTab];
             tabs.forEach(tab => {
                 tab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
                 tab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
@@ -577,15 +666,15 @@
             if (tabId === 'kpis') {
                 kpisDashboard.classList.remove('hidden');
                 activeTab = kpisTab;
-            } else if (tabId === 'monthly-log') {
-                monthlyLogDashboard.classList.remove('hidden');
-                activeTab = monthlyLogTab;
             } else if (tabId === 'new-starters') {
                 newStartersDashboard.classList.remove('hidden');
                 activeTab = newStartersTab;
             } else if (tabId === 'time-to-endorse') {
                 timeToEndorseDashboard.classList.remove('hidden');
                 activeTab = timeToEndorseTab;
+            } else if (tabId === 'admin') {
+                adminDashboard.classList.remove('hidden');
+                activeTab = adminTab;
             } else if (tabId === 'reporting') {
                 reportingDashboard.classList.remove('hidden');
                 renderReportingDashboard(); 
@@ -599,6 +688,9 @@
         }
         
         function renderKpiDashboard() {
+            if(kpiWeekStartDateSpan) {
+               kpiWeekStartDateSpan.textContent = kpiWeekStartDate;
+            }
             kpiCardsContainer.innerHTML = currentKpiData.map(member => `
                 <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
                     <div class="flex items-center mb-4">
@@ -645,7 +737,7 @@
                     
                     currentKpiData = currentKpiData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
                     
-                    saveStateToDb(); 
+                    debouncedSaveStateToDb(); 
                 });
             });
         }
@@ -675,12 +767,15 @@
         }
 
         function renderNewStartersDashboard() {
+            // This function now renders the entire hub
+            
+            // Render date selectors (already in HTML, just ensure values are correct)
             const selectedMonth = parseInt(monthSelect.value);
             const selectedYear = parseInt(yearSelect.value);
             const monthName = new Date(selectedYear, selectedMonth).toLocaleString('default', { month: 'long' });
-
             newStartersNote.textContent = `${monthName} ${selectedYear}`;
 
+            // Render summary cards
             newStartersCardsContainer.innerHTML = currentNewStartersData.map(member => `
                 <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
                     <div class="flex items-center mb-4">
@@ -709,9 +804,8 @@
                     </div>
                 </div>
             `).join('');
-        }
 
-        function renderNewStartersLeaderboard() {
+            // Render leaderboard
             const sortedNewStarters = [...currentNewStartersData].sort((a, b) => calculateNewStarterScore(b) - calculateNewStarterScore(a));
             newStartersLeaderboardList.innerHTML = sortedNewStarters.map((member, index) => `
                 <li class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${index < 3 ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-gray-50'}">
@@ -727,14 +821,15 @@
                     </div>
                 </li>
             `).join('');
-        }
 
-        function renderMonthlyLogDashboard() {
+            // Render monthly log table
             logRecruiterInput.innerHTML = `<option value="" disabled selected>Recruiter</option>` + recruitmentConsultants.map(name => `<option value="${name}">${name}</option>`).join('');
+            const filteredLog = currentMonthlyLogData.filter(entry => {
+                const startDate = new Date(entry.startDate);
+                return startDate.getMonth() === selectedMonth && startDate.getFullYear() === selectedYear;
+            }).sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
 
-            const sortedLog = [...currentMonthlyLogData].sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
-
-            monthlyLogTableBody.innerHTML = sortedLog.map(entry => {
+            monthlyLogTableBody.innerHTML = filteredLog.map(entry => {
                 let isFallout = false;
                 if (entry.endDate) {
                     const daysBetween = calculateCalendarDays(entry.startDate, entry.endDate);
@@ -758,12 +853,104 @@
                         <button onclick="removeLogEntry('${entry.id}')" class="text-red-600 hover:text-red-900">Delete</button>
                     </td>
                 </tr>
-            `}).join('');
-            if (sortedLog.length === 0) {
-                 monthlyLogTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">No entries yet. Add one above to get started.</td></tr>`;
+                `
+            }).join('');
+             if (filteredLog.length === 0) {
+                 monthlyLogTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">No entries for ${monthName} ${selectedYear}. Add one above to get started.</td></tr>`;
             }
         }
         
+        function exportDataToCsv() {
+            const selectedMonth = parseInt(monthSelect.value);
+            const selectedYear = parseInt(yearSelect.value);
+            const monthName = new Date(selectedYear, selectedMonth).toLocaleString('default', { month: 'long' });
+
+            const filteredData = currentMonthlyLogData.filter(entry => {
+                const startDate = new Date(entry.startDate);
+                return startDate.getMonth() === selectedMonth && startDate.getFullYear() === selectedYear;
+            }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+            if (filteredData.length === 0) {
+                showMessage('No data to export for the selected period.', 'error');
+                return;
+            }
+
+            const headers = ['Name', 'Client', 'Recruiter', 'Start Date', 'End Date', 'Roles', 'Notes'];
+            let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
+
+            filteredData.forEach(entry => {
+                const escapeCsvField = (field) => {
+                    if (field === undefined || field === null) return '';
+                    let stringField = String(field);
+                    if (stringField.search(/("|,|\n)/g) >= 0) {
+                        stringField = '"' + stringField.replace(/"/g, '""') + '"';
+                    }
+                    return stringField;
+                };
+
+                const row = [
+                    escapeCsvField(entry.name),
+                    escapeCsvField(entry.client),
+                    escapeCsvField(entry.recruiter),
+                    escapeCsvField(entry.startDate),
+                    escapeCsvField(entry.endDate),
+                    escapeCsvField(entry.roles),
+                    escapeCsvField(entry.notes)
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `MPloyHR_Report_${monthName}_${selectedYear}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showMessage('Report exported successfully!', 'success');
+        }
+
+        function exportKpiHistoryToCsv() {
+            if (kpiHistory.length === 0) {
+                showMessage('No KPI history to export.', 'error');
+                return;
+            }
+
+            const kpiKeys = Object.keys(kpiWeeklyTargets);
+            const headers = ['Week Ending', 'Consultant', ...kpiKeys, 'Final Score'];
+            let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
+
+            const escapeCsvField = (field) => {
+                if (field === undefined || field === null) return '';
+                let stringField = String(field);
+                if (stringField.search(/("|,|\n)/g) >= 0) {
+                    stringField = '"' + stringField.replace(/"/g, '""') + '"';
+                }
+                return stringField;
+            };
+
+            kpiHistory.forEach(snapshot => {
+                snapshot.data.forEach(consultantData => {
+                    const rowData = [
+                        snapshot.weekEnding,
+                        consultantData.name,
+                        ...kpiKeys.map(key => consultantData[key] || 0),
+                        calculateScore(consultantData).toFixed(2)
+                    ];
+                    csvContent += rowData.map(escapeCsvField).join(",") + "\n";
+                });
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `MPloyHR_KPI_History.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showMessage('KPI History exported successfully!', 'success');
+        }
+
         window.removeEndorsement = (id) => {
             onConfirmAction = () => {
                 currentEndorsementData = currentEndorsementData.filter(item => item.id != id);
@@ -916,6 +1103,31 @@
             if (kpiScoresChart) kpiScoresChart.destroy();
             if (newStartersChart) newStartersChart.destroy();
             if (endorsementTimeChart) endorsementTimeChart.destroy();
+            if (historicalKpiChart) historicalKpiChart.destroy();
+
+            // Historical KPI Chart
+            const historicalLabels = kpiHistory.map(snapshot => snapshot.weekEnding);
+            const historicalData = kpiHistory.map(snapshot => {
+                const totalScore = snapshot.data.reduce((sum, member) => sum + calculateScore(member), 0);
+                return totalScore / snapshot.data.length; // Average score
+            });
+
+            const historicalKpiData = {
+                labels: historicalLabels,
+                datasets: [{
+                    label: 'Average Weekly KPI Score (%)',
+                    data: historicalData,
+                    borderColor: 'rgba(234, 179, 8, 1)',
+                    backgroundColor: 'rgba(234, 179, 8, 0.6)',
+                    fill: false,
+                    tension: 0.1
+                }]
+            };
+
+            historicalKpiChart = new Chart(document.getElementById('historical-kpi-chart').getContext('2d'), {
+                type: 'line', data: historicalKpiData, options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+            });
+
 
             const kpiScores = currentKpiData.map(member => calculateScore(member));
             const kpiScoresData = {
@@ -969,14 +1181,34 @@
             });
         }
 
+        function renderAdminDashboard() {
+            const sortedHistory = [...kpiHistory].sort((a,b) => new Date(b.weekEnding) - new Date(a.weekEnding));
+            kpiHistoryTableBody.innerHTML = sortedHistory.map(snapshot => {
+                 const totalScore = snapshot.data.reduce((sum, member) => sum + calculateScore(member), 0);
+                 const avgScore = totalScore / snapshot.data.length;
+                return `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${snapshot.weekEnding}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${avgScore.toFixed(1)}%</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                           <button onclick="removeKpiSnapshot('${snapshot.id}')" class="text-red-600 hover:text-red-900">Delete</button>
+                        </td>
+                    </tr>
+                `
+            }).join('');
+
+            if(sortedHistory.length === 0) {
+                kpiHistoryTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-gray-500">No weekly snapshots have been saved yet.</td></tr>`;
+            }
+        }
+
         function renderAllDashboards() {
             renderKpiDashboard();
             renderLeaderboard();
             updateNewStartersDashboardData();
             renderNewStartersDashboard();
-            renderNewStartersLeaderboard();
-            renderMonthlyLogDashboard();
             renderTimeToEndorseDashboard();
+            renderAdminDashboard();
             if (!reportingDashboard.classList.contains('hidden')) {
                 renderReportingDashboard();
             }
@@ -1009,6 +1241,16 @@
             showModal('Confirm Deletion', 'Are you sure you want to remove this log entry?');
         };
 
+        window.removeKpiSnapshot = (id) => {
+            onConfirmAction = () => {
+                kpiHistory = kpiHistory.filter(s => s.id != id);
+                saveStateToDb();
+                showMessage('KPI snapshot removed.', 'success');
+                hideModal();
+            }
+            showModal('Confirm Deletion', 'Are you sure you want to remove this historical KPI snapshot?');
+        }
+
         function resetLogForm() {
             editingLogId = null;
             logNameInput.value = '';
@@ -1038,24 +1280,23 @@
             const currentYear = new Date().getFullYear();
             const currentMonth = new Date().getMonth();
 
-            // Populate years from 2025 to current year
-            for (let year = 2025; year <= currentYear; year++) {
+            yearSelect.innerHTML = '';
+            for (let year = 2025; year <= currentYear + 5; year++) {
                 const option = document.createElement('option');
                 option.value = year;
                 option.textContent = year;
                 yearSelect.appendChild(option);
             }
 
-            // Populate months
+            monthSelect.innerHTML = '';
             const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             months.forEach((month, index) => {
-                 const option = document.createElement('option');
+                const option = document.createElement('option');
                 option.value = index;
                 option.textContent = month;
                 monthSelect.appendChild(option);
             });
 
-            // Set default to current month and year
             yearSelect.value = currentYear;
             monthSelect.value = currentMonth;
         }
@@ -1074,18 +1315,45 @@
             signIn();
 
             kpisTab.addEventListener('click', () => switchTab('kpis'));
-            monthlyLogTab.addEventListener('click', () => switchTab('monthly-log'));
             newStartersTab.addEventListener('click', () => switchTab('new-starters'));
             timeToEndorseTab.addEventListener('click', () => switchTab('time-to-endorse'));
+            adminTab.addEventListener('click', () => switchTab('admin'));
             reportingTab.addEventListener('click', () => switchTab('reporting'));
 
-            monthSelect.addEventListener('change', renderAllDashboards);
-            yearSelect.addEventListener('change', renderAllDashboards);
+            monthSelect.addEventListener('change',() => {
+                yearSelect.dataset.userModified = true;
+                renderAllDashboards();
+            });
+            yearSelect.addEventListener('change', () => {
+                yearSelect.dataset.userModified = true;
+                renderAllDashboards();
+            });
+            exportCsvBtn.addEventListener('click', exportDataToCsv);
+            exportKpiHistoryBtn.addEventListener('click', exportKpiHistoryToCsv);
+
 
             cancelEditBtn.addEventListener('click', resetEndorsementForm);
             cancelLogEditBtn.addEventListener('click', resetLogForm);
             modalCancelBtn.addEventListener('click', hideModal);
             modalConfirmBtn.addEventListener('click', () => onConfirmAction());
+
+            finalizeWeekBtn.addEventListener('click', () => {
+                onConfirmAction = () => {
+                    const weekEndingDate = new Date().toISOString().slice(0, 10);
+                    const snapshot = {
+                        id: Date.now(),
+                        weekEnding: weekEndingDate,
+                        data: JSON.parse(JSON.stringify(currentKpiData)) // Deep copy
+                    };
+                    kpiHistory.push(snapshot);
+                    currentKpiData = initialTeamData.map(d => ({...d})); // Reset with a deep copy
+                    kpiWeekStartDate = new Date().toISOString().slice(0, 10);
+                    saveStateToDb();
+                    showMessage('Week finalized and KPI data archived!', 'success');
+                    hideModal();
+                };
+                 showModal('Finalize Week?', 'This will save a permanent snapshot of the current KPI scores and reset the board for the new week.');
+            });
 
             clearEndorsementsBtn.addEventListener('click', () => {
                  onConfirmAction = () => {
@@ -1129,6 +1397,12 @@
                 }
                 
                 resetLogForm();
+                
+                const newEntryDate = new Date(newEntry.startDate);
+                yearSelect.value = newEntryDate.getFullYear();
+                monthSelect.value = newEntryDate.getMonth();
+                yearSelect.dataset.userModified = false; // Allow auto-jump to latest after adding
+                
                 updateNewStartersDashboardData();
                 saveStateToDb();
             });

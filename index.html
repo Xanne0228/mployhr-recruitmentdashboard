@@ -136,7 +136,7 @@
                                     </div>
                                 </div>
                             </div>
-                             <div>
+                            <div>
                                 <h3 class="text-xl font-bold text-gray-800 mb-4">KPI History</h3>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full divide-y divide-gray-200">
@@ -186,15 +186,16 @@
                         <!-- Form for new entry -->
                         <div class="mb-8 p-6 bg-gray-50 rounded-xl border-2 border-dashed">
                              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                                <input id="log-name" type="text" placeholder="Name" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
+                                <input id="log-name" type="text" placeholder="Candidate Name" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
                                 <input id="log-client" type="text" placeholder="Client" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
                                 <select id="log-recruiter" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"><option value="" disabled selected>Recruiter</option></select>
-                                <input id="log-roles" type="text" placeholder="Roles" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
+                                <input id="log-roles" type="text" placeholder="Position / Roles" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
                                 
-                                <div><label class="text-sm text-gray-500 block mb-1">Start Date</label><input id="log-start-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
-                                <div><label class="text-sm text-gray-500 block mb-1">End Date (if applicable)</label><input id="log-end-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
+                                <div><label class="text-sm text-gray-500 block mb-1">Received Date</label><input id="log-start-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
+                                <div><label class="text-sm text-gray-500 block mb-1">Endorsed Date</label><input id="log-endorsed-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
+                                <div><label class="text-sm text-gray-500 block mb-1">End Date (Fallout)</label><input id="log-end-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
                                 
-                                <input id="log-notes" type="text" placeholder="Notes" class="lg:col-span-2 px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
+                                <input id="log-notes" type="text" placeholder="Notes" class="lg:col-span-1 px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
                                 
                                 <div class="flex items-center space-x-2 lg:col-span-4">
                                     <button id="add-log-entry-btn" class="flex-grow bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-indigo-700 transition-colors">Add Entry</button>
@@ -218,7 +219,8 @@
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recruiter</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Received Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Endorsed Date</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
@@ -235,45 +237,17 @@
 
                 <!-- Time to Endorse Dashboard -->
                 <div id="time-to-endorse-dashboard" class="hidden">
-                    <div class="max-w-4xl mx-auto space-y-8">
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <div class="lg:col-span-1">
-                                <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Time to Endorse</h2>
-                                <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 print-hidden">
-                                    <div class="flex flex-col items-center mb-6">
-                                        <p class="text-lg text-gray-600 mb-2">Team Average Endorsement Time</p>
-                                        <span id="average-endorsement-time" class="text-6xl font-extrabold text-indigo-600">0.0 Days</span>
-                                    </div>
-                                    <div class="space-y-4">
-                                        <h3 class="text-xl font-bold text-gray-800">Add New Endorsement</h3>
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <input id="candidate-name-input" type="text" placeholder="Candidate Name" class="col-span-2 px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
-                                            <input id="position-input" type="text" placeholder="Position" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
-                                            <input id="client-name-input" type="text" placeholder="Client Name" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
-                                            <select id="recruiter-name-input" class="col-span-2 px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
-                                                <option value="" disabled selected>Select Recruiter</option>
-                                            </select>
-                                            <div class="col-span-1">
-                                                <label for="received-date" class="text-sm text-gray-500 block mb-1">Received Date</label>
-                                                <input id="received-date-input" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
-                                            </div>
-                                            <div class="col-span-1">
-                                                <label for="endorsed-date" class="text-sm text-gray-500 block mb-1">Endorsed Date</label>
-                                                <input id="endorsed-date-input" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500 transition-colors duration-200">
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center space-x-2">
-                                            <button id="add-endorsement-btn" class="flex-grow bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-indigo-700 transition-colors duration-200">Add Endorsement</button>
-                                            <button id="cancel-edit-btn" class="hidden bg-gray-500 text-white px-4 py-2 rounded-md font-semibold hover:bg-gray-600 transition-colors duration-200">Cancel</button>
-                                        </div>
-                                        <button id="clear-endorsements-btn" class="w-full text-sm text-red-500 hover:text-red-700 font-semibold mt-2">Clear All Endorsements</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Individual Recruiter Dashboards -->
-                            <div id="recruiter-dashboards-container" class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Recruiter cards will be dynamically rendered here -->
-                            </div>
+                     <div class="max-w-6xl mx-auto space-y-8">
+                        <div class="text-center">
+                             <h2 class="text-3xl font-bold text-gray-900 mb-2">Time to Endorse</h2>
+                             <p class="text-gray-600">This data is automatically calculated from the 'New Starters' log. Weekends are not counted.</p>
+                        </div>
+                        <div class="flex flex-col items-center mb-6 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-sm mx-auto">
+                            <p class="text-lg text-gray-600 mb-2">Team Average Endorsement Time</p>
+                            <span id="average-endorsement-time" class="text-6xl font-extrabold text-indigo-600">0.0 Days</span>
+                        </div>
+                        <div id="recruiter-dashboards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Recruiter cards will be dynamically rendered here -->
                         </div>
                     </div>
                 </div>
@@ -296,9 +270,9 @@
                             <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Monthly New Starters vs. Fallouts</h3>
                             <canvas id="new-starters-chart"></canvas>
                         </div>
-                            <!-- Time to Endorse Chart -->
+                         <!-- Time to Endorse Chart -->
                         <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
-                            <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Average Time to Endorse (Days)</h3>
+                            <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Average Time to Endorse (Business Days)</h3>
                             <canvas id="endorsement-time-chart"></canvas>
                         </div>
                     </div>
@@ -311,38 +285,17 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, setPersistence, browserLocalPersistence, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase Configuration and Initialization ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyC2yY5dAYwQA4IOB5f-fBF_UHNQZseGumY",
-            authDomain: "mployhr-recruitment-dashboard.firebaseapp.com",
-            projectId: "mployhr-recruitment-dashboard",
-            storageBucket: "mployhr-recruitment-dashboard.firebasestorage.app",
-            messagingSenderId: "736940004987",
-            appId: "1:736940004987:web:5fec3950310a7912c7f4de",
-            measurementId: "G-ZWQE1FVHY4"
-        };
+        // --- DOM Elements (must be accessible globally) ---
+        const userInfoDiv = document.getElementById('user-info');
         
-        let app, db, auth;
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            setLogLevel('debug');
-        } catch(e) {
-            console.error("Error initializing Firebase:", e);
-        }
-
-
         // --- App Constants and Initial Data ---
         const kpiWeeklyTargets = {
-            seekApplicationScreening: 25, // < 25, so target is 24 or less
             leadGeneration: 10,
             zoomInterviews: 10,
             endorsementCandidates: 5,
-            profileCreation: 50 // Points, not a count
         };
 
         const recruitmentConsultants = ['Catherine', 'Jade', 'Jewel', 'Marvin', 'Lorenz', 'Roxanne', 'Maria', 'Belle'];
@@ -350,10 +303,8 @@
 
         const initialTeamData = weeklyConsultants.map(name => ({
             name: name,
-            seekApplicationScreening: 0,
             leadGeneration: 0,
             zoomInterviews: 0,
-            profileCreation: 0,
             endorsementCandidates: 0,
         }));
         
@@ -368,6 +319,7 @@
         const initialKpiHistory = [];
 
         // --- Philippine Holidays for September 2025 ---
+        // No nationwide holidays proclaimed for September 2025 as of now. This can be updated if new holidays are announced.
         const philippineHolidays = []; 
 
         // --- App State ---
@@ -379,83 +331,88 @@
         let currentMonthlyLogData = initialMonthlyLogData;
         let dbDocRef; 
         let userId; 
-
-        // --- DOM Elements ---
-        const kpisTab = document.getElementById('kpis-tab');
-        const newStartersTab = document.getElementById('new-starters-tab');
-        const timeToEndorseTab = document.getElementById('time-to-endorse-tab');
-        const adminTab = document.getElementById('admin-tab');
-        const reportingTab = document.getElementById('reporting-tab');
-        
-        const kpisDashboard = document.getElementById('kpis-dashboard');
-        const newStartersDashboard = document.getElementById('new-starters-dashboard');
-        const timeToEndorseDashboard = document.getElementById('time-to-endorse-dashboard');
-        const adminDashboard = document.getElementById('admin-dashboard');
-        const reportingDashboard = document.getElementById('reporting-dashboard');
-
-        const kpiCardsContainer = document.getElementById('kpi-cards-container');
-        const leaderboardList = document.getElementById('leaderboard-list');
-        const newStartersCardsContainer = document.getElementById('new-starters-cards-container');
-        const newStartersLeaderboardList = document.getElementById('new-starters-leaderboard-list');
-        const averageTimeSpan = document.getElementById('average-endorsement-time');
-        const recruiterDashboardsContainer = document.getElementById('recruiter-dashboards-container');
-        const addEndorsementBtn = document.getElementById('add-endorsement-btn');
-        const cancelEditBtn = document.getElementById('cancel-edit-btn');
-        const clearEndorsementsBtn = document.getElementById('clear-endorsements-btn');
-        const candidateNameInput = document.getElementById('candidate-name-input');
-        const positionInput = document.getElementById('position-input');
-        const clientNameInput = document.getElementById('client-name-input');
-        const recruiterNameInput = document.getElementById('recruiter-name-input');
-        const receivedDateInput = document.getElementById('received-date-input');
-        const endorsedDateInput = document.getElementById('endorsed-date-input');
-        const userInfoDiv = document.getElementById('user-info');
-        const newStartersNote = document.getElementById('new-starters-note').querySelector('strong');
-        const monthSelect = document.getElementById('month-select');
-        const yearSelect = document.getElementById('year-select');
-
-        // Admin DOM Elements
-        const finalizeWeekBtn = document.getElementById('finalize-week-btn');
-        const kpiHistoryTableBody = document.getElementById('kpi-history-table-body');
-        const kpiWeekStartDateSpan = document.getElementById('kpi-week-start-date');
-        const exportKpiHistoryBtn = document.getElementById('export-kpi-history-btn');
-
-
-        // Monthly Log DOM Elements
-        const monthlyLogTableBody = document.getElementById('monthly-log-table-body');
-        const addLogEntryBtn = document.getElementById('add-log-entry-btn');
-        const cancelLogEditBtn = document.getElementById('cancel-log-edit-btn');
-        const logNameInput = document.getElementById('log-name');
-        const logClientInput = document.getElementById('log-client');
-        const logRecruiterInput = document.getElementById('log-recruiter');
-        const logRolesInput = document.getElementById('log-roles');
-        const logStartDateInput = document.getElementById('log-start-date');
-        const logEndDateInput = document.getElementById('log-end-date');
-        const logNotesInput = document.getElementById('log-notes');
-
-        // Monthly Report DOM Elements
-        const exportCsvBtn = document.getElementById('export-csv-btn');
-
-        // Modal elements
-        const confirmationModal = document.getElementById('confirmation-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalMessage = document.getElementById('modal-message');
-        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-        const modalCancelBtn = document.getElementById('modal-cancel-btn');
-
-        let kpiScoresChart, newStartersChart, endorsementTimeChart, historicalKpiChart;
-        let editingId = null;
-        let editingLogId = null;
         let onConfirmAction = () => {};
 
-        // --- Firebase Authentication and Data Sync ---
-        const connectionTimeout = setTimeout(() => {
-            if (userInfoDiv.textContent === 'Connecting...') {
-                userInfoDiv.textContent = 'Connection timed out. Please check your network or refresh the page.';
+        // Main application function
+        function main() {
+            // --- Firebase Configuration and Initialization ---
+             const firebaseConfig = {
+              apiKey: "AIzaSyC2yY5dAYwQA4IOB5f-fBF_UHNQZseGumY",
+              authDomain: "mployhr-recruitment-dashboard.firebaseapp.com",
+              projectId: "mployhr-recruitment-dashboard",
+              storageBucket: "mployhr-recruitment-dashboard.appspot.com",
+              messagingSenderId: "736940004987",
+              appId: "1:736940004987:web:5fec3950310a7912c7f4de",
+              measurementId: "G-ZWQE1FVHY4"
+            };
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            
+            let app, db, auth;
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setLogLevel('debug');
+            } catch(e) {
+                console.error("Error initializing Firebase:", e);
+                userInfoDiv.textContent = `Error: Firebase initialization failed. ${e.message}`;
                 userInfoDiv.classList.add('text-red-500');
+                return; // Stop execution if Firebase fails
             }
-        }, 15000); 
 
-        if (auth) {
+            // --- DOM Elements ---
+            const kpisTab = document.getElementById('kpis-tab');
+            const newStartersTab = document.getElementById('new-starters-tab');
+            const timeToEndorseTab = document.getElementById('time-to-endorse-tab');
+            const adminTab = document.getElementById('admin-tab');
+            const reportingTab = document.getElementById('reporting-tab');
+            const kpisDashboard = document.getElementById('kpis-dashboard');
+            const newStartersDashboard = document.getElementById('new-starters-dashboard');
+            const timeToEndorseDashboard = document.getElementById('time-to-endorse-dashboard');
+            const adminDashboard = document.getElementById('admin-dashboard');
+            const reportingDashboard = document.getElementById('reporting-dashboard');
+            const kpiCardsContainer = document.getElementById('kpi-cards-container');
+            const leaderboardList = document.getElementById('leaderboard-list');
+            const newStartersCardsContainer = document.getElementById('new-starters-cards-container');
+            const newStartersLeaderboardList = document.getElementById('new-starters-leaderboard-list');
+            const averageTimeSpan = document.getElementById('average-endorsement-time');
+            const recruiterDashboardsContainer = document.getElementById('recruiter-dashboards-container');
+            const newStartersNote = document.getElementById('new-starters-note').querySelector('strong');
+            const monthSelect = document.getElementById('month-select');
+            const yearSelect = document.getElementById('year-select');
+            const finalizeWeekBtn = document.getElementById('finalize-week-btn');
+            const kpiHistoryTableBody = document.getElementById('kpi-history-table-body');
+            const kpiWeekStartDateSpan = document.getElementById('kpi-week-start-date');
+            const exportKpiHistoryBtn = document.getElementById('export-kpi-history-btn');
+            const monthlyLogTableBody = document.getElementById('monthly-log-table-body');
+            const addLogEntryBtn = document.getElementById('add-log-entry-btn');
+            const cancelLogEditBtn = document.getElementById('cancel-log-edit-btn');
+            const logNameInput = document.getElementById('log-name');
+            const logClientInput = document.getElementById('log-client');
+            const logRecruiterInput = document.getElementById('log-recruiter');
+            const logRolesInput = document.getElementById('log-roles');
+            const logStartDateInput = document.getElementById('log-start-date');
+            const logEndDateInput = document.getElementById('log-end-date');
+            const logEndorsedDateInput = document.getElementById('log-endorsed-date');
+            const logNotesInput = document.getElementById('log-notes');
+            const exportCsvBtn = document.getElementById('export-csv-btn');
+            const confirmationModal = document.getElementById('confirmation-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMessage = document.getElementById('modal-message');
+            const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+            const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+            let kpiScoresChart, newStartersChart, endorsementTimeChart, historicalKpiChart;
+            let editingLogId = null;
+
+            // --- Firebase Authentication and Data Sync ---
+            const connectionTimeout = setTimeout(() => {
+                if (userInfoDiv.textContent === 'Connecting...') {
+                    userInfoDiv.textContent = 'Connection timed out. Please check your network or refresh the page.';
+                    userInfoDiv.classList.add('text-red-500');
+                }
+            }, 15000); 
+
             onAuthStateChanged(auth, async (user) => {
                 clearTimeout(connectionTimeout); 
                 if (user) {
@@ -463,17 +420,31 @@
                     userInfoDiv.innerHTML = `Connected as: <span class="font-mono bg-gray-200 px-1 rounded">${userId}</span>`;
                     userInfoDiv.classList.remove('text-red-500');
                     
-                    const docPath = `/dashboard-state/main`;
+                    const docPath = `/artifacts/${appId}/public/data/dashboard-state/main`;
                     dbDocRef = doc(db, docPath);
 
                     onSnapshot(dbDocRef, (doc) => {
+                        let needsSave = false;
                         if (doc.exists()) {
                             const data = doc.data();
                             currentKpiData = data.currentKpiData || initialTeamData;
                             kpiHistory = data.kpiHistory || initialKpiHistory;
                             kpiWeekStartDate = data.kpiWeekStartDate || new Date().toISOString().slice(0, 10);
-                            currentEndorsementData = data.endorsementData || initialEndorsementData;
                             currentMonthlyLogData = data.monthlyLogData || initialMonthlyLogData;
+                            
+                            updateEndorsementDataFromLog();
+
+                            const today = new Date();
+                            const dayOfWeek = today.getDay();
+                            const daysToSubtract = (dayOfWeek - 1 + 7) % 7;
+                            const mostRecentMonday = new Date(today);
+                            mostRecentMonday.setDate(today.getDate() - daysToSubtract);
+                            const mostRecentMondayString = mostRecentMonday.toISOString().slice(0, 10);
+
+                            if (kpiWeekStartDate !== mostRecentMondayString) {
+                                kpiWeekStartDate = mostRecentMondayString;
+                                needsSave = true;
+                            }
 
                             if (currentMonthlyLogData.length > 0 && !yearSelect.dataset.userModified) {
                                 const mostRecentEntry = currentMonthlyLogData.reduce((latest, entry) => {
@@ -483,10 +454,11 @@
                                 yearSelect.value = mostRecentDate.getFullYear();
                                 monthSelect.value = mostRecentDate.getMonth();
                             }
-
-                            updateNewStartersDashboardData();
                         } else {
-                            console.log("No document found, initializing with default data.");
+                            needsSave = true;
+                        }
+                        
+                        if (needsSave) {
                             saveStateToDb();
                         }
                         renderAllDashboards();
@@ -497,388 +469,434 @@
                     await signIn();
                 }
             });
-        }
-
-        async function signIn() {
-            if (!auth) return;
-            try {
-                await setPersistence(auth, browserLocalPersistence);
-                await signInAnonymously(auth);
-            } catch (error) {
-                console.error("Authentication failed:", error);
-                userInfoDiv.textContent = `Authentication failed: ${error.message}`;
-                userInfoDiv.classList.add('text-red-500');
+            
+            async function signIn() {
+                if (!auth) return;
+                try {
+                    await setPersistence(auth, browserLocalPersistence);
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (error) {
+                    console.error("Authentication failed:", error);
+                    userInfoDiv.textContent = `Authentication failed: ${error.message}`;
+                    userInfoDiv.classList.add('text-red-500');
+                }
             }
-        }
 
-        async function saveStateToDb() {
-            if (!dbDocRef) {
-                console.error("Firestore document reference not initialized.");
-                return;
+            async function saveStateToDb() {
+                if (!dbDocRef) {
+                    console.error("Firestore document reference not initialized.");
+                    return;
+                }
+                try {
+                    const state = {
+                        currentKpiData: currentKpiData,
+                        kpiHistory: kpiHistory,
+                        kpiWeekStartDate: kpiWeekStartDate,
+                        monthlyLogData: currentMonthlyLogData
+                    };
+                    await setDoc(dbDocRef, state);
+                } catch (error) {
+                    console.error("Error saving state to Firestore:", error);
+                }
             }
-            try {
-                const state = {
-                    currentKpiData: currentKpiData,
-                    kpiHistory: kpiHistory,
-                    kpiWeekStartDate: kpiWeekStartDate,
-                    endorsementData: currentEndorsementData,
-                    monthlyLogData: currentMonthlyLogData
+
+            const debouncedSaveStateToDb = debounce(saveStateToDb, 500);
+
+            function debounce(func, delay) {
+                let timeout;
+                return function(...args) {
+                    const context = this;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), delay);
                 };
-                await setDoc(dbDocRef, state);
-            } catch (error) {
-                console.error("Error saving state to Firestore:", error);
             }
-        }
 
-        // --- Helper Functions ---
-        function debounce(func, delay) {
-            let timeout;
-            return function(...args) {
-                const context = this;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(context, args), delay);
-            };
-        }
-        const debouncedSaveStateToDb = debounce(saveStateToDb, 500); // Save after 500ms of inactivity
-
-        function showMessage(message, type = 'info') {
-            const messageBox = document.createElement('div');
-            messageBox.textContent = message;
-            messageBox.classList.add('message-box', 'text-white', 'font-semibold');
-            if (type === 'error') {
-                messageBox.classList.add('bg-red-500');
-            } else if (type === 'success') {
-                messageBox.classList.add('bg-green-500');
-            } else {
-                messageBox.classList.add('bg-blue-500');
-            }
-            document.body.appendChild(messageBox);
-            setTimeout(() => {
-                if (document.body.contains(messageBox)) {
-                    document.body.removeChild(messageBox);
+            function showMessage(message, type = 'info') {
+                const messageBox = document.createElement('div');
+                messageBox.textContent = message;
+                messageBox.classList.add('message-box', 'text-white', 'font-semibold');
+                if (type === 'error') {
+                    messageBox.classList.add('bg-red-500');
+                } else if (type === 'success') {
+                    messageBox.classList.add('bg-green-500');
+                } else {
+                    messageBox.classList.add('bg-blue-500');
                 }
-            }, 3000);
-        }
-
-        function calculateBusinessDays(startDate, endDate) {
-            let count = 0;
-            const currentDate = new Date(startDate);
-            const end = new Date(endDate);
-            while (currentDate <= end) {
-                const dayOfWeek = currentDate.getDay();
-                const dateString = currentDate.toISOString().slice(0, 10);
-                if (dayOfWeek !== 0 && dayOfWeek !== 6 && !philippineHolidays.includes(dateString)) {
-                    count++;
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
+                document.body.appendChild(messageBox);
+                setTimeout(() => {
+                    if (document.body.contains(messageBox)) {
+                        document.body.removeChild(messageBox);
+                    }
+                }, 3000);
             }
-            return count > 0 ? count -1 : 0;
-        }
 
-        function calculateCalendarDays(startDate, endDate) {
-            if (!startDate || !endDate) return Infinity;
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            const differenceInTime = end.getTime() - start.getTime();
-            return differenceInTime / (1000 * 3600 * 24);
-        }
+            function calculateBusinessDays(startDate, endDate) {
+                let count = 0;
+                const currentDate = new Date(startDate);
+                const end = new Date(endDate);
+                while (currentDate <= end) {
+                    const dayOfWeek = currentDate.getDay();
+                    const dateString = currentDate.toISOString().slice(0, 10);
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !philippineHolidays.includes(dateString)) {
+                        count++;
+                    }
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                return count > 0 ? count : 0;
+            }
 
-        function getKPIStatus(kpiKey, totalValue) {
-            const weeklyTarget = kpiWeeklyTargets[kpiKey];
+            function calculateCalendarDays(startDate, endDate) {
+                if (!startDate || !endDate) return Infinity;
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const differenceInTime = end.getTime() - start.getTime();
+                return differenceInTime / (1000 * 3600 * 24);
+            }
 
-            if (kpiKey === 'seekApplicationScreening') {
-                return totalValue < weeklyTarget ? 'bg-green-500' : 'bg-red-500';
-            } else {
+            function getKPIStatus(kpiKey, totalValue) {
+                const weeklyTarget = kpiWeeklyTargets[kpiKey];
                 if (totalValue >= weeklyTarget) return 'bg-green-500';
                 if (totalValue >= weeklyTarget * 0.75) return 'bg-yellow-500';
                 return 'bg-red-500';
             }
-        }
-        
-        function calculateScore(member) {
-            let score = 0;
-            const kpiKeys = Object.keys(kpiWeeklyTargets);
-            const maxScorePerKpi = 100 / kpiKeys.length;
             
-            kpiKeys.forEach(kpiKey => {
-                const totalValue = member[kpiKey] || 0;
-                const weeklyTarget = kpiWeeklyTargets[kpiKey];
-                let kpiScore = 0;
+            function calculateScore(member) {
+                let score = 0;
+                const kpiKeys = Object.keys(kpiWeeklyTargets);
+                if (kpiKeys.length === 0) return 0;
+                const maxScorePerKpi = 100 / kpiKeys.length;
+                
+                kpiKeys.forEach(kpiKey => {
+                    const totalValue = member[kpiKey] || 0;
+                    const weeklyTarget = kpiWeeklyTargets[kpiKey];
+                    let kpiScore = 0;
 
-                if (weeklyTarget > 0) { // Avoid division by zero
-                    if (kpiKey === 'seekApplicationScreening') {
-                        const performance = Math.max(0, (weeklyTarget - totalValue) / weeklyTarget);
-                        kpiScore = maxScorePerKpi * performance;
-                    } else {
+                    if (weeklyTarget > 0) {
                         const performance = Math.min(1, totalValue / weeklyTarget);
                         kpiScore = performance * maxScorePerKpi;
                     }
+                    score += kpiScore;
+                });
+                
+                return Math.max(0, score);
+            }
+            
+            function calculateFalloutRate(newStarters, fallOuts) {
+                if (newStarters === 0) return 0;
+                return (fallOuts / newStarters) * 100;
+            }
+
+            function calculateNewStarterScore(member) {
+                return member.newStarters - member.fallOuts;
+            }
+
+            function getRateColor(rate) {
+                if (rate <= 5) return 'text-green-600';
+                if (rate <= 15) return 'text-yellow-600';
+                return 'text-red-600';
+            }
+
+            function calculateRecruiterAverageTime(recruiterName) {
+                const recruiterEndorsements = currentEndorsementData.filter(item => item.recruiterName === recruiterName);
+                if (recruiterEndorsements.length === 0) return 0;
+                const totalTime = recruiterEndorsements.reduce((sum, item) => sum + item.endorsementTime, 0);
+                return totalTime / recruiterEndorsements.length;
+            }
+
+            function calculateTeamAverageTime(endorsementData) {
+                if (!endorsementData || endorsementData.length === 0) return 0;
+                const totalTime = endorsementData.reduce((sum, item) => sum + item.endorsementTime, 0);
+                return totalTime / endorsementData.length;
+            }
+
+            function updateEndorsementDataFromLog() {
+                const newEndorsementData = [];
+                currentMonthlyLogData.forEach(log => {
+                    if (log.startDate && log.endorsedDate) {
+                        newEndorsementData.push({
+                            id: log.id,
+                            recruiterName: log.recruiter,
+                            candidateName: log.name,
+                            position: log.roles,
+                            clientName: log.client,
+                            receivedDate: log.startDate,
+                            endorsedDate: log.endorsedDate,
+                            endorsementTime: calculateBusinessDays(log.startDate, log.endorsedDate)
+                        });
+                    }
+                });
+                currentEndorsementData = newEndorsementData;
+            }
+
+            function switchTab(tabId) {
+                kpisDashboard.classList.add('hidden');
+                newStartersDashboard.classList.add('hidden');
+                timeToEndorseDashboard.classList.add('hidden');
+                adminDashboard.classList.add('hidden');
+                reportingDashboard.classList.add('hidden');
+
+                const tabs = [kpisTab, newStartersTab, timeToEndorseTab, adminTab, reportingTab];
+                tabs.forEach(tab => {
+                    tab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
+                    tab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+                });
+
+                let activeTab;
+                if (tabId === 'kpis') {
+                    kpisDashboard.classList.remove('hidden');
+                    activeTab = kpisTab;
+                } else if (tabId === 'new-starters') {
+                    newStartersDashboard.classList.remove('hidden');
+                    activeTab = newStartersTab;
+                } else if (tabId === 'time-to-endorse') {
+                    timeToEndorseDashboard.classList.remove('hidden');
+                    activeTab = timeToEndorseTab;
+                } else if (tabId === 'admin') {
+                    adminDashboard.classList.remove('hidden');
+                    activeTab = adminTab;
+                } else if (tabId === 'reporting') {
+                    reportingDashboard.classList.remove('hidden');
+                    renderReportingDashboard(); 
+                    activeTab = reportingTab;
                 }
-                score += kpiScore;
-            });
-            
-            return Math.max(0, score);
-        }
-        
-        function calculateFalloutRate(newStarters, fallOuts) {
-            if (newStarters === 0) return 0;
-            return (fallOuts / newStarters) * 100;
-        }
-
-        function calculateNewStarterScore(member) {
-            return member.newStarters - member.fallOuts;
-        }
-
-        function getRateColor(rate) {
-            if (rate <= 5) return 'text-green-600';
-            if (rate <= 15) return 'text-yellow-600';
-            return 'text-red-600';
-        }
-
-        function calculateRecruiterAverageTime(recruiterName) {
-            const recruiterEndorsements = currentEndorsementData.filter(item => item.recruiterName === recruiterName);
-            if (recruiterEndorsements.length === 0) return 0;
-            const totalTime = recruiterEndorsements.reduce((sum, item) => sum + item.endorsementTime, 0);
-            return totalTime / recruiterEndorsements.length;
-        }
-
-        function calculateTeamAverageTime(endorsementData) {
-            if (!endorsementData || endorsementData.length === 0) return 0;
-            const totalTime = endorsementData.reduce((sum, item) => sum + item.endorsementTime, 0);
-            return totalTime / endorsementData.length;
-        }
-
-        // --- Rendering Functions ---
-        function switchTab(tabId) {
-            kpisDashboard.classList.add('hidden');
-            newStartersDashboard.classList.add('hidden');
-            timeToEndorseDashboard.classList.add('hidden');
-            adminDashboard.classList.add('hidden');
-            reportingDashboard.classList.add('hidden');
-
-            const tabs = [kpisTab, newStartersTab, timeToEndorseTab, adminTab, reportingTab];
-            tabs.forEach(tab => {
-                tab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
-                tab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-            });
-
-            let activeTab;
-            if (tabId === 'kpis') {
-                kpisDashboard.classList.remove('hidden');
-                activeTab = kpisTab;
-            } else if (tabId === 'new-starters') {
-                newStartersDashboard.classList.remove('hidden');
-                activeTab = newStartersTab;
-            } else if (tabId === 'time-to-endorse') {
-                timeToEndorseDashboard.classList.remove('hidden');
-                activeTab = timeToEndorseTab;
-            } else if (tabId === 'admin') {
-                adminDashboard.classList.remove('hidden');
-                activeTab = adminTab;
-            } else if (tabId === 'reporting') {
-                reportingDashboard.classList.remove('hidden');
-                renderReportingDashboard(); 
-                activeTab = reportingTab;
+                
+                if (activeTab) {
+                    activeTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
+                    activeTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+                }
             }
             
-            if (activeTab) {
-                activeTab.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
-                activeTab.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-            }
-        }
-        
-        function renderKpiDashboard() {
-            if(kpiWeekStartDateSpan) {
-               kpiWeekStartDateSpan.textContent = kpiWeekStartDate;
-            }
-            kpiCardsContainer.innerHTML = currentKpiData.map(member => `
-                <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
-                    <div class="flex items-center mb-4">
-                        <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
-                        <h3 class="text-xl font-bold text-gray-800">${member.name}</h3>
-                    </div>
-                    <div class="flex-1 space-y-4">
-                        ${Object.keys(kpiWeeklyTargets).map(kpiKey => {
-                            const weeklyValue = member[kpiKey] || 0;
-                            return `
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-lg font-bold text-gray-800 capitalize flex items-center">
-                                        ${kpiKey.replace(/([A-Z])/g, ' $1')}
-                                    </span>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-sm text-gray-500">
-                                            (Target: ${kpiKey === 'seekApplicationScreening' ? `<${kpiWeeklyTargets[kpiKey]}` : kpiWeeklyTargets[kpiKey]}/wk)
+            function renderKpiDashboard() {
+                if(kpiWeekStartDateSpan) {
+                   kpiWeekStartDateSpan.textContent = kpiWeekStartDate;
+                }
+                kpiCardsContainer.innerHTML = currentKpiData.map(member => `
+                    <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
+                            <h3 class="text-xl font-bold text-gray-800">${member.name}</h3>
+                        </div>
+                        <div class="flex-1 space-y-4">
+                            ${Object.keys(kpiWeeklyTargets).map(kpiKey => {
+                                const weeklyValue = member[kpiKey] || 0;
+                                return `
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">
+                                            ${kpiKey.replace(/([A-Z])/g, ' $1')}
                                         </span>
-                                        <div class="w-3 h-3 rounded-full ${getKPIStatus(kpiKey, weeklyValue)}"></div>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">
+                                                (Target: ${kpiWeeklyTargets[kpiKey]}/wk)
+                                            </span>
+                                            <div class="w-3 h-3 rounded-full ${getKPIStatus(kpiKey, weeklyValue)}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input
+                                            type="number"
+                                            value="${weeklyValue}"
+                                            data-name="${member.name}"
+                                            data-kpi="${kpiKey}"
+                                            class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200"
+                                        />
                                     </div>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="font-semibold">Weekly Total:</span>
-                                    <input
-                                        type="number"
-                                        value="${weeklyValue}"
-                                        data-name="${member.name}"
-                                        data-kpi="${kpiKey}"
-                                        class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200"
-                                    />
-                                </div>
-                            </div>
-                        `}).join('')}
+                            `}).join('')}
+                        </div>
                     </div>
-                </div>
-            `).join('');
-            
-            kpiCardsContainer.querySelectorAll('input').forEach(input => {
-                input.addEventListener('input', (e) => {
-                    const name = e.target.dataset.name;
-                    const kpiKey = e.target.dataset.kpi;
-                    const value = parseInt(e.target.value, 10) || 0;
-                    
-                    currentKpiData = currentKpiData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
-                    
-                    debouncedSaveStateToDb(); 
+                `).join('');
+                
+                kpiCardsContainer.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        const name = e.target.dataset.name;
+                        const kpiKey = e.target.dataset.kpi;
+                        const value = parseInt(e.target.value, 10) || 0;
+                        currentKpiData = currentKpiData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
+                        debouncedSaveStateToDb(); 
+                    });
                 });
-            });
-        }
-        
-        function updateNewStartersDashboardData() {
-            const selectedMonth = parseInt(monthSelect.value);
-            const selectedYear = parseInt(yearSelect.value);
+            }
+            
+            function updateNewStartersDashboardData() {
+                const selectedMonth = parseInt(monthSelect.value);
+                const selectedYear = parseInt(yearSelect.value);
 
-            const calculatedStarters = recruitmentConsultants.map(name => ({ name, newStarters: 0, fallOuts: 0 }));
+                const calculatedStarters = recruitmentConsultants.map(name => ({ name, newStarters: 0, fallOuts: 0 }));
 
-            currentMonthlyLogData.forEach(entry => {
-                const startDate = new Date(entry.startDate);
-                if (startDate.getMonth() === selectedMonth && startDate.getFullYear() === selectedYear) {
-                    const recruiter = calculatedStarters.find(r => r.name === entry.recruiter);
-                    if (recruiter) {
-                        recruiter.newStarters++;
-                        if (entry.endDate) {
-                            const daysBetween = calculateCalendarDays(entry.startDate, entry.endDate);
-                            if (daysBetween <= 30) {
-                                recruiter.fallOuts++;
+                currentMonthlyLogData.forEach(entry => {
+                    const startDate = new Date(entry.startDate);
+                    if (startDate.getMonth() === selectedMonth && startDate.getFullYear() === selectedYear) {
+                        const recruiter = calculatedStarters.find(r => r.name === entry.recruiter);
+                        if (recruiter) {
+                            recruiter.newStarters++;
+                            if (entry.endDate) {
+                                const daysBetween = calculateCalendarDays(entry.startDate, entry.endDate);
+                                if (daysBetween <= 30) {
+                                    recruiter.fallOuts++;
+                                }
                             }
                         }
                     }
-                }
-            });
-            currentNewStartersData = calculatedStarters;
-        }
+                });
+                currentNewStartersData = calculatedStarters;
+            }
 
-        function renderNewStartersDashboard() {
-            // This function now renders the entire hub
-            
-            // Render date selectors (already in HTML, just ensure values are correct)
-            const selectedMonth = parseInt(monthSelect.value);
-            const selectedYear = parseInt(yearSelect.value);
-            const monthName = new Date(selectedYear, selectedMonth).toLocaleString('default', { month: 'long' });
-            newStartersNote.textContent = `${monthName} ${selectedYear}`;
+            function renderNewStartersDashboard() {
+                const selectedMonth = parseInt(monthSelect.value);
+                const selectedYear = parseInt(yearSelect.value);
+                const monthName = new Date(selectedYear, selectedMonth).toLocaleString('default', { month: 'long' });
+                newStartersNote.textContent = `${monthName} ${selectedYear}`;
 
-            // Render summary cards
-            newStartersCardsContainer.innerHTML = currentNewStartersData.map(member => `
-                <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
-                    <div class="flex items-center mb-4">
-                        <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
-                        <h3 class="text-xl font-bold text-gray-800">${member.name}</h3>
-                    </div>
-                    <div class="flex-1 space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                            <span class="text-gray-600 font-medium flex items-center">
-                                <i class="fas fa-user text-green-500 mr-2"></i> New Starters
-                            </span>
-                            <span class="text-2xl font-bold text-green-700">${member.newStarters}</span>
+                newStartersCardsContainer.innerHTML = currentNewStartersData.map(member => `
+                    <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
+                            <h3 class="text-xl font-bold text-gray-800">${member.name}</h3>
                         </div>
-                        <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg">
-                            <span class="text-gray-600 font-medium flex items-center">
-                                <i class="fas fa-user-times text-red-500 mr-2"></i> Fall Outs
-                            </span>
-                            <span class="text-2xl font-bold text-red-700">${member.fallOuts}</span>
-                        </div>
-                        <div class="border-t border-gray-200 pt-4 flex items-center justify-between">
-                            <span class="font-bold text-gray-800">Fall Out Rate</span>
-                            <span class="text-xl font-bold ${getRateColor(calculateFalloutRate(member.newStarters, member.fallOuts))}">
-                                ${calculateFalloutRate(member.newStarters, member.fallOuts).toFixed(1)}%
-                            </span>
+                        <div class="flex-1 space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                                <span class="text-gray-600 font-medium flex items-center">
+                                    <i class="fas fa-user text-green-500 mr-2"></i> New Starters
+                                </span>
+                                <span class="text-2xl font-bold text-green-700">${member.newStarters}</span>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+                                <span class="text-gray-600 font-medium flex items-center">
+                                    <i class="fas fa-user-times text-red-500 mr-2"></i> Fall Outs
+                                </span>
+                                <span class="text-2xl font-bold text-red-700">${member.fallOuts}</span>
+                            </div>
+                            <div class="border-t border-gray-200 pt-4 flex items-center justify-between">
+                                <span class="font-bold text-gray-800">Fall Out Rate</span>
+                                <span class="text-xl font-bold ${getRateColor(calculateFalloutRate(member.newStarters, member.fallOuts))}">
+                                    ${calculateFalloutRate(member.newStarters, member.fallOuts).toFixed(1)}%
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
 
-            // Render leaderboard
-            const sortedNewStarters = [...currentNewStartersData].sort((a, b) => calculateNewStarterScore(b) - calculateNewStarterScore(a));
-            newStartersLeaderboardList.innerHTML = sortedNewStarters.map((member, index) => `
-                <li class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${index < 3 ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-gray-50'}">
-                    <div class="flex items-center">
-                        <span class="font-extrabold text-xl mr-4 ${index === 0 ? 'text-indigo-600' : index === 1 ? 'text-indigo-500' : index === 2 ? 'text-indigo-400' : 'text-gray-400'}">#${index + 1}</span>
-                        <span class="font-semibold text-gray-700">${member.name}</span>
-                    </div>
-                    <div class="flex items-center">
-                        ${index < 3 ? `<i class="fas fa-award w-5 h-5 mr-2 ${index === 0 ? 'text-yellow-500' : 'text-gray-400'}"></i>` : ''}
-                        <span class="text-xl font-bold text-gray-900">
-                            ${calculateNewStarterScore(member)}
-                        </span>
-                    </div>
-                </li>
-            `).join('');
+                const sortedNewStarters = [...currentNewStartersData].sort((a, b) => calculateNewStarterScore(b) - calculateNewStarterScore(a));
+                newStartersLeaderboardList.innerHTML = sortedNewStarters.map((member, index) => `
+                    <li class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${index < 3 ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-gray-50'}">
+                        <div class="flex items-center">
+                            <span class="font-extrabold text-xl mr-4 ${index === 0 ? 'text-indigo-600' : index === 1 ? 'text-indigo-500' : index === 2 ? 'text-indigo-400' : 'text-gray-400'}">#${index + 1}</span>
+                            <span class="font-semibold text-gray-700">${member.name}</span>
+                        </div>
+                        <div class="flex items-center">
+                            ${index < 3 ? `<i class="fas fa-award w-5 h-5 mr-2 ${index === 0 ? 'text-yellow-500' : 'text-gray-400'}"></i>` : ''}
+                            <span class="text-xl font-bold text-gray-900">
+                                ${calculateNewStarterScore(member)}
+                            </span>
+                        </div>
+                    </li>
+                `).join('');
 
-            // Render monthly log table
-            logRecruiterInput.innerHTML = `<option value="" disabled selected>Recruiter</option>` + recruitmentConsultants.map(name => `<option value="${name}">${name}</option>`).join('');
-            const filteredLog = currentMonthlyLogData.filter(entry => {
-                const startDate = new Date(entry.startDate);
-                return startDate.getMonth() === selectedMonth && startDate.getFullYear() === selectedYear;
-            }).sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+                logRecruiterInput.innerHTML = `<option value="" disabled selected>Recruiter</option>` + recruitmentConsultants.map(name => `<option value="${name}">${name}</option>`).join('');
+                const filteredLog = currentMonthlyLogData.filter(entry => {
+                    const startDate = new Date(entry.startDate);
+                    return startDate.getMonth() === selectedMonth && startDate.getFullYear() === selectedYear;
+                }).sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
 
-            monthlyLogTableBody.innerHTML = filteredLog.map(entry => {
-                let isFallout = false;
-                if (entry.endDate) {
-                    const daysBetween = calculateCalendarDays(entry.startDate, entry.endDate);
-                    if (daysBetween >= 0 && daysBetween <= 30) {
-                        isFallout = true;
+                monthlyLogTableBody.innerHTML = filteredLog.map(entry => {
+                    let isFallout = false;
+                    if (entry.endDate) {
+                        const daysBetween = calculateCalendarDays(entry.startDate, entry.endDate);
+                        if (daysBetween >= 0 && daysBetween <= 30) {
+                            isFallout = true;
+                        }
                     }
+                    const rowClass = isFallout ? 'bg-red-100 hover:bg-red-200 transition-colors' : 'hover:bg-gray-50 transition-colors';
+
+                    return `
+                    <tr class="${rowClass}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${entry.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.client}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.recruiter}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.startDate}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.endorsedDate || 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.endDate || 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.roles}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.notes}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button data-id="${entry.id}" class="edit-log-btn text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
+                            <button data-id="${entry.id}" class="delete-log-btn text-red-600 hover:text-red-900">Delete</button>
+                        </td>
+                    </tr>
+                    `
+                }).join('');
+                 if (filteredLog.length === 0) {
+                     monthlyLogTableBody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-gray-500">No entries for ${monthName} ${selectedYear}. Add one above to get started.</td></tr>`;
                 }
-                const rowClass = isFallout ? 'bg-red-100 hover:bg-red-200 transition-colors' : 'hover:bg-gray-50 transition-colors';
-
-                return `
-                <tr class="${rowClass}">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${entry.name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.client}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.recruiter}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.startDate}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.endDate || 'N/A'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.roles}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${entry.notes}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button onclick="startEditLogEntry('${entry.id}')" class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
-                        <button onclick="removeLogEntry('${entry.id}')" class="text-red-600 hover:text-red-900">Delete</button>
-                    </td>
-                </tr>
-                `
-            }).join('');
-             if (filteredLog.length === 0) {
-                 monthlyLogTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">No entries for ${monthName} ${selectedYear}. Add one above to get started.</td></tr>`;
             }
-        }
-        
-        function exportDataToCsv() {
-            const selectedMonth = parseInt(monthSelect.value);
-            const selectedYear = parseInt(yearSelect.value);
-            const monthName = new Date(selectedYear, selectedMonth).toLocaleString('default', { month: 'long' });
+            
+            function exportDataToCsv() {
+                const selectedMonth = parseInt(monthSelect.value);
+                const selectedYear = parseInt(yearSelect.value);
+                const monthName = new Date(selectedYear, selectedMonth).toLocaleString('default', { month: 'long' });
 
-            const filteredData = currentMonthlyLogData.filter(entry => {
-                const startDate = new Date(entry.startDate);
-                return startDate.getMonth() === selectedMonth && startDate.getFullYear() === selectedYear;
-            }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+                const filteredData = currentMonthlyLogData.filter(entry => {
+                    const startDate = new Date(entry.startDate);
+                    return startDate.getMonth() === selectedMonth && startDate.getFullYear() === selectedYear;
+                }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
 
-            if (filteredData.length === 0) {
-                showMessage('No data to export for the selected period.', 'error');
-                return;
+                if (filteredData.length === 0) {
+                    showMessage('No data to export for the selected period.', 'error');
+                    return;
+                }
+
+                const headers = ['Name', 'Client', 'Recruiter', 'Received Date', 'Endorsed Date', 'End Date', 'Roles', 'Notes'];
+                let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
+
+                filteredData.forEach(entry => {
+                    const escapeCsvField = (field) => {
+                        if (field === undefined || field === null) return '';
+                        let stringField = String(field);
+                        if (stringField.search(/("|,|\n)/g) >= 0) {
+                            stringField = '"' + stringField.replace(/"/g, '""') + '"';
+                        }
+                        return stringField;
+                    };
+
+                    const row = [
+                        escapeCsvField(entry.name),
+                        escapeCsvField(entry.client),
+                        escapeCsvField(entry.recruiter),
+                        escapeCsvField(entry.startDate),
+                        escapeCsvField(entry.endorsedDate),
+                        escapeCsvField(entry.endDate),
+                        escapeCsvField(entry.roles),
+                        escapeCsvField(entry.notes)
+                    ].join(",");
+                    csvContent += row + "\n";
+                });
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `MPloyHR_Report_${monthName}_${selectedYear}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showMessage('Report exported successfully!', 'success');
             }
 
-            const headers = ['Name', 'Client', 'Recruiter', 'Start Date', 'End Date', 'Roles', 'Notes'];
-            let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
+            function exportKpiHistoryToCsv() {
+                if (kpiHistory.length === 0) {
+                    showMessage('No KPI history to export.', 'error');
+                    return;
+                }
 
-            filteredData.forEach(entry => {
+                const kpiKeys = Object.keys(kpiWeeklyTargets);
+                const headers = ['Week Ending', 'Consultant', ...kpiKeys, 'Final Score'];
+                let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
+
                 const escapeCsvField = (field) => {
                     if (field === undefined || field === null) return '';
                     let stringField = String(field);
@@ -888,429 +906,288 @@
                     return stringField;
                 };
 
-                const row = [
-                    escapeCsvField(entry.name),
-                    escapeCsvField(entry.client),
-                    escapeCsvField(entry.recruiter),
-                    escapeCsvField(entry.startDate),
-                    escapeCsvField(entry.endDate),
-                    escapeCsvField(entry.roles),
-                    escapeCsvField(entry.notes)
-                ].join(",");
-                csvContent += row + "\n";
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `MPloyHR_Report_${monthName}_${selectedYear}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showMessage('Report exported successfully!', 'success');
-        }
-
-        function exportKpiHistoryToCsv() {
-            if (kpiHistory.length === 0) {
-                showMessage('No KPI history to export.', 'error');
-                return;
-            }
-
-            const kpiKeys = Object.keys(kpiWeeklyTargets);
-            const headers = ['Week Ending', 'Consultant', ...kpiKeys, 'Final Score'];
-            let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
-
-            const escapeCsvField = (field) => {
-                if (field === undefined || field === null) return '';
-                let stringField = String(field);
-                if (stringField.search(/("|,|\n)/g) >= 0) {
-                    stringField = '"' + stringField.replace(/"/g, '""') + '"';
-                }
-                return stringField;
-            };
-
-            kpiHistory.forEach(snapshot => {
-                snapshot.data.forEach(consultantData => {
-                    const rowData = [
-                        snapshot.weekEnding,
-                        consultantData.name,
-                        ...kpiKeys.map(key => consultantData[key] || 0),
-                        calculateScore(consultantData).toFixed(2)
-                    ];
-                    csvContent += rowData.map(escapeCsvField).join(",") + "\n";
+                kpiHistory.forEach(snapshot => {
+                    snapshot.data.forEach(consultantData => {
+                        const rowData = [
+                            snapshot.weekEnding,
+                            consultantData.name,
+                            ...kpiKeys.map(key => consultantData[key] || 0),
+                            calculateScore(consultantData).toFixed(2)
+                        ];
+                        csvContent += rowData.map(escapeCsvField).join(",") + "\n";
+                    });
                 });
-            });
 
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `MPloyHR_KPI_History.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showMessage('KPI History exported successfully!', 'success');
-        }
-
-        window.removeEndorsement = (id) => {
-            onConfirmAction = () => {
-                currentEndorsementData = currentEndorsementData.filter(item => item.id != id);
-                saveStateToDb();
-                showMessage('Endorsement removed successfully!', 'success');
-                hideModal();
-            };
-            showModal('Confirm Deletion', 'Are you sure you want to remove this endorsement record?');
-        }
-
-        window.startEditEndorsement = (id) => {
-            const endorsement = currentEndorsementData.find(item => item.id == id);
-            if (!endorsement) {
-                showMessage('Error: Endorsement not found.', 'error');
-                return;
-            }
-            editingId = id;
-            candidateNameInput.value = endorsement.candidateName;
-            positionInput.value = endorsement.position;
-            clientNameInput.value = endorsement.clientName;
-            recruiterNameInput.value = endorsement.recruiterName;
-            receivedDateInput.value = endorsement.receivedDate;
-            endorsedDateInput.value = endorsement.endorsedDate;
-            addEndorsementBtn.textContent = 'Save Changes';
-            cancelEditBtn.classList.remove('hidden');
-            showMessage('Editing endorsement. Click Save Changes when done.', 'info');
-            candidateNameInput.focus();
-        }
-
-        function saveEndorsementChanges() {
-            const index = currentEndorsementData.findIndex(item => item.id == editingId);
-            if (index === -1) {
-                showMessage('Error: Endorsement not found.', 'error');
-                return;
-            }
-            const receivedDateStr = receivedDateInput.value;
-            const endorsedDateStr = endorsedDateInput.value;
-            
-            const receivedDate = new Date(receivedDateStr);
-            const endorsedDate = new Date(endorsedDateStr);
-
-            if (endorsedDate < receivedDate) {
-                showMessage('Endorsed Date cannot be before Received Date.', 'error');
-                return;
-            }
-            if (!candidateNameInput.value.trim() || !positionInput.value.trim() || !clientNameInput.value.trim() || !recruiterNameInput.value) {
-                showMessage('Please fill out all fields.', 'error');
-                return;
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `MPloyHR_KPI_History.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showMessage('KPI History exported successfully!', 'success');
             }
 
-            const endorsementTime = calculateBusinessDays(receivedDate, endorsedDate);
-            const entryToUpdate = currentEndorsementData[index];
+            function renderTimeToEndorseDashboard() {
+                const teamAverageTime = calculateTeamAverageTime(currentEndorsementData);
+                averageTimeSpan.textContent = `${teamAverageTime.toFixed(1)} Days`;
 
-            entryToUpdate.recruiterName = recruiterNameInput.value;
-            entryToUpdate.candidateName = candidateNameInput.value.trim();
-            entryToUpdate.position = positionInput.value.trim();
-            entryToUpdate.clientName = clientNameInput.value.trim();
-            entryToUpdate.receivedDate = receivedDateStr;
-            entryToUpdate.endorsedDate = endorsedDateStr;
-            entryToUpdate.endorsementTime = endorsementTime;
-            
-            saveStateToDb();
-            
-            resetEndorsementForm();
-            showMessage('Changes saved successfully!', 'success');
-        }
-
-        function resetEndorsementForm() {
-            editingId = null;
-            addEndorsementBtn.textContent = 'Add Endorsement';
-            cancelEditBtn.classList.add('hidden');
-            candidateNameInput.value = '';
-            positionInput.value = '';
-            clientNameInput.value = '';
-            recruiterNameInput.value = '';
-            receivedDateInput.value = '';
-            endorsedDateInput.value = '';
-        }
-
-        function renderTimeToEndorseDashboard() {
-            const teamAverageTime = calculateTeamAverageTime(currentEndorsementData);
-            averageTimeSpan.textContent = `${teamAverageTime.toFixed(1)} Days`;
-
-            const currentRecruiterValue = recruiterNameInput.value;
-            recruiterNameInput.innerHTML = `<option value="" disabled selected>Select Recruiter</option>` + recruitmentConsultants.map(name => `<option value="${name}">${name}</option>`).join('');
-            if (currentRecruiterValue) {
-                recruiterNameInput.value = currentRecruiterValue;
-            }
-
-            recruiterDashboardsContainer.innerHTML = recruitmentConsultants.map(recruiter => {
-                const recruiterEndorsements = currentEndorsementData.filter(item => item.recruiterName === recruiter).sort((a, b) => new Date(b.receivedDate) - new Date(a.receivedDate));
-                const recruiterAverageTime = calculateRecruiterAverageTime(recruiter);
-                
-                return `
-                    <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
-                        <div class="flex items-center mb-4">
-                            <i class="fas fa-user-tie text-indigo-600 mr-2 text-2xl"></i>
-                            <h3 class="text-xl font-bold text-gray-800">${recruiter}</h3>
-                        </div>
-                        <div class="flex flex-col items-center mb-4">
-                            <p class="text-sm text-gray-600 mb-1">Average Time</p>
-                            <span class="text-4xl font-bold text-indigo-500">${recruiterAverageTime.toFixed(1)} Days</span>
-                        </div>
-                        <ul class="space-y-2 mt-4 border-t pt-4 max-h-60 overflow-y-auto">
-                            ${recruiterEndorsements.length > 0 ? recruiterEndorsements.map(item => `
-                                <li class="p-3 rounded-lg bg-gray-50 border border-gray-200 text-sm hover:bg-indigo-50 transition-colors">
-                                    <div class="flex items-center justify-between font-bold text-gray-800 mb-1">
-                                        <span class="truncate pr-2">${item.candidateName}</span>
-                                        <div class="flex items-center space-x-2 flex-shrink-0">
-                                            <span class="bg-indigo-100 text-indigo-700 font-semibold px-2 py-0.5 rounded-full">${item.endorsementTime}d</span>
-                                            <button onclick="startEditEndorsement('${item.id}')" class="text-indigo-500 hover:text-indigo-700">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button onclick="removeEndorsement('${item.id}')" class="text-red-500 hover:text-red-700">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
+                recruiterDashboardsContainer.innerHTML = recruitmentConsultants.map(recruiter => {
+                    const recruiterEndorsements = currentEndorsementData.filter(item => item.recruiterName === recruiter).sort((a, b) => new Date(b.receivedDate) - new Date(a.receivedDate));
+                    const recruiterAverageTime = calculateRecruiterAverageTime(recruiter);
+                    
+                    return `
+                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-user-tie text-indigo-600 mr-2 text-2xl"></i>
+                                <h3 class="text-xl font-bold text-gray-800">${recruiter}</h3>
+                            </div>
+                            <div class="flex flex-col items-center mb-4">
+                                <p class="text-sm text-gray-600 mb-1">Average Time</p>
+                                <span class="text-4xl font-bold text-indigo-500">${recruiterAverageTime.toFixed(1)} Days</span>
+                            </div>
+                            <ul class="space-y-2 mt-4 border-t pt-4 max-h-60 overflow-y-auto">
+                                ${recruiterEndorsements.length > 0 ? recruiterEndorsements.map(item => `
+                                    <li class="p-3 rounded-lg bg-gray-50 border border-gray-200 text-sm hover:bg-indigo-50 transition-colors">
+                                        <div class="flex items-center justify-between font-bold text-gray-800 mb-1">
+                                            <span class="truncate pr-2">${item.candidateName}</span>
+                                            <div class="flex items-center space-x-2 flex-shrink-0">
+                                                <span class="bg-indigo-100 text-indigo-700 font-semibold px-2 py-0.5 rounded-full">${item.endorsementTime}d</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="flex items-center justify-between text-xs text-gray-500">
-                                        <span class="truncate pr-2">${item.position} (${item.clientName})</span>
-                                        <span class="flex-shrink-0">${item.receivedDate} to ${item.endorsedDate}</span>
-                                    </div>
-                                </li>
-                            `).join('') : '<li class="text-center text-gray-500 py-4">No endorsements recorded.</li>'}
-                        </ul>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderLeaderboard() {
-            const sortedKpis = [...currentKpiData].sort((a, b) => calculateScore(b) - calculateScore(a));
-            leaderboardList.innerHTML = sortedKpis.map((member, index) => `
-                <li class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${index < 3 ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-gray-50'}">
-                    <div class="flex items-center">
-                        <span class="font-extrabold text-xl mr-4 ${index === 0 ? 'text-indigo-600' : index === 1 ? 'text-indigo-500' : index === 2 ? 'text-indigo-400' : 'text-gray-400'}">#${index + 1}</span>
-                        <span class="font-semibold text-gray-700">${member.name}</span>
-                    </div>
-                    <div class="flex items-center">
-                        ${index < 3 ? `<i class="fas fa-award w-5 h-5 mr-2 ${index === 0 ? 'text-yellow-500' : 'text-gray-400'}"></i>` : ''}
-                        <span class="text-xl font-bold text-gray-900">
-                            ${calculateScore(member).toFixed(0)}%
-                        </span>
-                    </div>
-                </li>
-            `).join('');
-        }
-
-        function renderReportingDashboard() {
-            if (kpiScoresChart) kpiScoresChart.destroy();
-            if (newStartersChart) newStartersChart.destroy();
-            if (endorsementTimeChart) endorsementTimeChart.destroy();
-            if (historicalKpiChart) historicalKpiChart.destroy();
-
-            // Historical KPI Chart
-            const historicalLabels = kpiHistory.map(snapshot => snapshot.weekEnding);
-            const historicalData = kpiHistory.map(snapshot => {
-                const totalScore = snapshot.data.reduce((sum, member) => sum + calculateScore(member), 0);
-                return totalScore / snapshot.data.length; // Average score
-            });
-
-            const historicalKpiData = {
-                labels: historicalLabels,
-                datasets: [{
-                    label: 'Average Weekly KPI Score (%)',
-                    data: historicalData,
-                    borderColor: 'rgba(234, 179, 8, 1)',
-                    backgroundColor: 'rgba(234, 179, 8, 0.6)',
-                    fill: false,
-                    tension: 0.1
-                }]
-            };
-
-            historicalKpiChart = new Chart(document.getElementById('historical-kpi-chart').getContext('2d'), {
-                type: 'line', data: historicalKpiData, options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
-            });
-
-
-            const kpiScores = currentKpiData.map(member => calculateScore(member));
-            const kpiScoresData = {
-                labels: weeklyConsultants,
-                datasets: [{
-                    label: 'Weekly KPI Score (%)',
-                    data: kpiScores,
-                    backgroundColor: 'rgba(99, 102, 241, 0.6)',
-                    borderColor: 'rgba(99, 102, 241, 1)',
-                    borderWidth: 1
-                }]
-            };
-
-            const newStartersData = {
-                labels: recruitmentConsultants,
-                datasets: [{
-                    label: 'New Starters',
-                    data: currentNewStartersData.map(member => member.newStarters),
-                    backgroundColor: 'rgba(52, 211, 153, 0.6)',
-                    borderColor: 'rgba(52, 211, 153, 1)',
-                    borderWidth: 1
-                }, {
-                    label: 'Fall Outs',
-                    data: currentNewStartersData.map(member => member.fallOuts),
-                    backgroundColor: 'rgba(239, 68, 68, 0.6)',
-                    borderColor: 'rgba(239, 68, 68, 1)',
-                    borderWidth: 1
-                }]
-            };
-
-            const endorsementTimes = recruitmentConsultants.map(recruiter => calculateRecruiterAverageTime(recruiter));
-            const endorsementTimeData = {
-                labels: recruitmentConsultants,
-                datasets: [{
-                    label: 'Average Time to Endorse (Days)',
-                    data: endorsementTimes,
-                    backgroundColor: 'rgba(251, 191, 36, 0.6)',
-                    borderColor: 'rgba(251, 191, 36, 1)',
-                    borderWidth: 1
-                }]
-            };
-
-            kpiScoresChart = new Chart(document.getElementById('kpi-scores-chart').getContext('2d'), {
-                type: 'bar', data: kpiScoresData, options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
-            });
-            newStartersChart = new Chart(document.getElementById('new-starters-chart').getContext('2d'), {
-                type: 'bar', data: newStartersData, options: { responsive: true, scales: { x: {}, y: { beginAtZero: true } } }
-            });
-            endorsementTimeChart = new Chart(document.getElementById('endorsement-time-chart').getContext('2d'), {
-                type: 'bar', data: endorsementTimeData, options: { responsive: true, scales: { y: { beginAtZero: true } } }
-            });
-        }
-
-        function renderAdminDashboard() {
-            const sortedHistory = [...kpiHistory].sort((a,b) => new Date(b.weekEnding) - new Date(a.weekEnding));
-            kpiHistoryTableBody.innerHTML = sortedHistory.map(snapshot => {
-                 const totalScore = snapshot.data.reduce((sum, member) => sum + calculateScore(member), 0);
-                 const avgScore = totalScore / snapshot.data.length;
-                return `
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${snapshot.weekEnding}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${avgScore.toFixed(1)}%</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                           <button onclick="removeKpiSnapshot('${snapshot.id}')" class="text-red-600 hover:text-red-900">Delete</button>
-                        </td>
-                    </tr>
-                `
-            }).join('');
-
-            if(sortedHistory.length === 0) {
-                kpiHistoryTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-gray-500">No weekly snapshots have been saved yet.</td></tr>`;
+                                        <div class="flex items-center justify-between text-xs text-gray-500">
+                                            <span class="truncate pr-2">${item.position} (${item.clientName})</span>
+                                            <span class="flex-shrink-0">${item.receivedDate} to ${item.endorsedDate}</span>
+                                        </div>
+                                    </li>
+                                `).join('') : '<li class="text-center text-gray-500 py-4">No endorsements recorded.</li>'}
+                            </ul>
+                        </div>
+                    `;
+                }).join('');
             }
-        }
 
-        function renderAllDashboards() {
-            renderKpiDashboard();
-            renderLeaderboard();
-            updateNewStartersDashboardData();
-            renderNewStartersDashboard();
-            renderTimeToEndorseDashboard();
-            renderAdminDashboard();
-            if (!reportingDashboard.classList.contains('hidden')) {
-                renderReportingDashboard();
+            function renderLeaderboard() {
+                const sortedKpis = [...currentKpiData].sort((a, b) => calculateScore(b) - calculateScore(a));
+                leaderboardList.innerHTML = sortedKpis.map((member, index) => `
+                    <li class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${index < 3 ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-gray-50'}">
+                        <div class="flex items-center">
+                            <span class="font-extrabold text-xl mr-4 ${index === 0 ? 'text-indigo-600' : index === 1 ? 'text-indigo-500' : index === 2 ? 'text-indigo-400' : 'text-gray-400'}">#${index + 1}</span>
+                            <span class="font-semibold text-gray-700">${member.name}</span>
+                        </div>
+                        <div class="flex items-center">
+                            ${index < 3 ? `<i class="fas fa-award w-5 h-5 mr-2 ${index === 0 ? 'text-yellow-500' : 'text-gray-400'}"></i>` : ''}
+                            <span class="text-xl font-bold text-gray-900">
+                                ${calculateScore(member).toFixed(0)}%
+                            </span>
+                        </div>
+                    </li>
+                `).join('');
             }
-        }
-        
-        // --- Monthly Log CRUD Functions ---
-        window.startEditLogEntry = (id) => {
-            const entry = currentMonthlyLogData.find(e => e.id == id);
-            if (!entry) return;
-            editingLogId = id;
-            logNameInput.value = entry.name;
-            logClientInput.value = entry.client;
-            logRecruiterInput.value = entry.recruiter;
-            logRolesInput.value = entry.roles;
-            logStartDateInput.value = entry.startDate;
-            logEndDateInput.value = entry.endDate || '';
-            logNotesInput.value = entry.notes;
-            addLogEntryBtn.textContent = 'Save Changes';
-            cancelLogEditBtn.classList.remove('hidden');
-        };
 
-        window.removeLogEntry = (id) => {
-            onConfirmAction = () => {
-                currentMonthlyLogData = currentMonthlyLogData.filter(e => e.id != id);
+            function renderReportingDashboard() {
+                if (kpiScoresChart) kpiScoresChart.destroy();
+                if (newStartersChart) newStartersChart.destroy();
+                if (endorsementTimeChart) endorsementTimeChart.destroy();
+                if (historicalKpiChart) historicalKpiChart.destroy();
+
+                const historicalLabels = kpiHistory.map(snapshot => snapshot.weekEnding);
+                const historicalData = kpiHistory.map(snapshot => {
+                    if (snapshot.data.length === 0) return 0;
+                    const totalScore = snapshot.data.reduce((sum, member) => sum + calculateScore(member), 0);
+                    return totalScore / snapshot.data.length;
+                });
+
+                const historicalKpiData = {
+                    labels: historicalLabels,
+                    datasets: [{
+                        label: 'Average Weekly KPI Score (%)',
+                        data: historicalData,
+                        borderColor: 'rgba(234, 179, 8, 1)',
+                        backgroundColor: 'rgba(234, 179, 8, 0.6)',
+                        fill: false,
+                        tension: 0.1
+                    }]
+                };
+
+                historicalKpiChart = new Chart(document.getElementById('historical-kpi-chart').getContext('2d'), {
+                    type: 'line', data: historicalKpiData, options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+                });
+
+
+                const kpiScores = currentKpiData.map(member => calculateScore(member));
+                const kpiScoresData = {
+                    labels: weeklyConsultants,
+                    datasets: [{
+                        label: 'Weekly KPI Score (%)',
+                        data: kpiScores,
+                        backgroundColor: 'rgba(99, 102, 241, 0.6)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 1
+                    }]
+                };
+
+                const newStartersData = {
+                    labels: recruitmentConsultants,
+                    datasets: [{
+                        label: 'New Starters',
+                        data: currentNewStartersData.map(member => member.newStarters),
+                        backgroundColor: 'rgba(52, 211, 153, 0.6)',
+                        borderColor: 'rgba(52, 211, 153, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Fall Outs',
+                        data: currentNewStartersData.map(member => member.fallOuts),
+                        backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 1
+                    }]
+                };
+
+                const endorsementTimes = recruitmentConsultants.map(recruiter => calculateRecruiterAverageTime(recruiter));
+                const endorsementTimeData = {
+                    labels: recruitmentConsultants,
+                    datasets: [{
+                        label: 'Average Time to Endorse (Business Days)',
+                        data: endorsementTimes,
+                        backgroundColor: 'rgba(251, 191, 36, 0.6)',
+                        borderColor: 'rgba(251, 191, 36, 1)',
+                        borderWidth: 1
+                    }]
+                };
+
+                kpiScoresChart = new Chart(document.getElementById('kpi-scores-chart').getContext('2d'), {
+                    type: 'bar', data: kpiScoresData, options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+                });
+                newStartersChart = new Chart(document.getElementById('new-starters-chart').getContext('2d'), {
+                    type: 'bar', data: newStartersData, options: { responsive: true, scales: { x: {}, y: { beginAtZero: true } } }
+                });
+                endorsementTimeChart = new Chart(document.getElementById('endorsement-time-chart').getContext('2d'), {
+                    type: 'bar', data: endorsementTimeData, options: { responsive: true, scales: { y: { beginAtZero: true } } }
+                });
+            }
+
+            function renderAdminDashboard() {
+                const sortedHistory = [...kpiHistory].sort((a,b) => new Date(b.weekEnding) - new Date(a.weekEnding));
+                kpiHistoryTableBody.innerHTML = sortedHistory.map(snapshot => {
+                     if (snapshot.data.length === 0) return '';
+                     const totalScore = snapshot.data.reduce((sum, member) => sum + calculateScore(member), 0);
+                     const avgScore = totalScore / snapshot.data.length;
+                    return `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${snapshot.weekEnding}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${avgScore.toFixed(1)}%</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                               <button data-id="${snapshot.id}" class="delete-snapshot-btn text-red-600 hover:text-red-900">Delete</button>
+                            </td>
+                        </tr>
+                    `
+                }).join('');
+
+                if(sortedHistory.length === 0) {
+                    kpiHistoryTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-gray-500">No weekly snapshots have been saved yet.</td></tr>`;
+                }
+            }
+
+            function renderAllDashboards() {
+                renderKpiDashboard();
+                renderLeaderboard();
                 updateNewStartersDashboardData();
-                saveStateToDb();
-                showMessage('Log entry removed.', 'success');
-                hideModal();
-            };
-            showModal('Confirm Deletion', 'Are you sure you want to remove this log entry?');
-        };
-
-        window.removeKpiSnapshot = (id) => {
-            onConfirmAction = () => {
-                kpiHistory = kpiHistory.filter(s => s.id != id);
-                saveStateToDb();
-                showMessage('KPI snapshot removed.', 'success');
-                hideModal();
-            }
-            showModal('Confirm Deletion', 'Are you sure you want to remove this historical KPI snapshot?');
-        }
-
-        function resetLogForm() {
-            editingLogId = null;
-            logNameInput.value = '';
-            logClientInput.value = '';
-            logRecruiterInput.value = '';
-            logRolesInput.value = '';
-            logStartDateInput.value = '';
-            logEndDateInput.value = '';
-            logNotesInput.value = '';
-            addLogEntryBtn.textContent = 'Add Entry';
-            cancelLogEditBtn.classList.add('hidden');
-        }
-
-
-        // --- Modal Functions ---
-        function showModal(title, message) {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            confirmationModal.classList.remove('hidden');
-        }
-
-        function hideModal() {
-            confirmationModal.classList.add('hidden');
-        }
-
-        function populateDateFilters() {
-            const currentYear = new Date().getFullYear();
-            const currentMonth = new Date().getMonth();
-
-            yearSelect.innerHTML = '';
-            for (let year = 2025; year <= currentYear + 5; year++) {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                yearSelect.appendChild(option);
-            }
-
-            monthSelect.innerHTML = '';
-            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            months.forEach((month, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = month;
-                monthSelect.appendChild(option);
-            });
-
-            yearSelect.value = currentYear;
-            monthSelect.value = currentMonth;
-        }
-
-
-        // --- Initial Load and Event Listeners ---
-        window.onload = () => {
-            if (!auth) {
-                clearTimeout(connectionTimeout);
-                userInfoDiv.textContent = "Error: Application is not configured correctly. Firebase connection failed.";
-                userInfoDiv.classList.add('text-red-500');
-                return; 
+                updateEndorsementDataFromLog();
+                renderNewStartersDashboard();
+                renderTimeToEndorseDashboard();
+                renderAdminDashboard();
+                if (!reportingDashboard.classList.contains('hidden')) {
+                    renderReportingDashboard();
+                }
             }
             
+            function startEditLogEntry(id) {
+                const entry = currentMonthlyLogData.find(e => e.id == id);
+                if (!entry) return;
+                editingLogId = id;
+                logNameInput.value = entry.name;
+                logClientInput.value = entry.client;
+                logRecruiterInput.value = entry.recruiter;
+                logRolesInput.value = entry.roles;
+                logStartDateInput.value = entry.startDate;
+                logEndorsedDateInput.value = entry.endorsedDate || '';
+                logEndDateInput.value = entry.endDate || '';
+                logNotesInput.value = entry.notes;
+                addLogEntryBtn.textContent = 'Save Changes';
+                cancelLogEditBtn.classList.remove('hidden');
+            }
+
+            function removeLogEntry(id) {
+                onConfirmAction = () => {
+                    currentMonthlyLogData = currentMonthlyLogData.filter(e => e.id != id);
+                    saveStateToDb();
+                    showMessage('Log entry removed.', 'success');
+                    hideModal();
+                };
+                showModal('Confirm Deletion', 'Are you sure you want to remove this log entry?');
+            }
+
+            function removeKpiSnapshot(id) {
+                onConfirmAction = () => {
+                    kpiHistory = kpiHistory.filter(s => s.id != id);
+                    saveStateToDb();
+                    showMessage('KPI snapshot removed.', 'success');
+                    hideModal();
+                }
+                showModal('Confirm Deletion', 'Are you sure you want to remove this historical KPI snapshot?');
+            }
+
+            function resetLogForm() {
+                editingLogId = null;
+                logNameInput.value = '';
+                logClientInput.value = '';
+                logRecruiterInput.value = '';
+                logRolesInput.value = '';
+                logStartDateInput.value = '';
+                logEndorsedDateInput.value = '';
+                logEndDateInput.value = '';
+                logNotesInput.value = '';
+                addLogEntryBtn.textContent = 'Add Entry';
+                cancelLogEditBtn.classList.add('hidden');
+            }
+
+            function showModal(title, message) {
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                confirmationModal.classList.remove('hidden');
+            }
+
+            function hideModal() {
+                confirmationModal.classList.add('hidden');
+            }
+
+            function populateDateFilters() {
+                const currentYear = new Date().getFullYear();
+                const currentMonth = new Date().getMonth();
+
+                yearSelect.innerHTML = '';
+                for (let year = 2025; year <= currentYear + 5; year++) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    yearSelect.appendChild(option);
+                }
+
+                monthSelect.innerHTML = '';
+                const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                months.forEach((month, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = month;
+                    monthSelect.appendChild(option);
+                });
+
+                yearSelect.value = currentYear;
+                monthSelect.value = currentMonth;
+            }
+
+            // --- Initial Load and Event Listeners ---
             populateDateFilters();
             signIn();
 
@@ -1332,7 +1209,6 @@
             exportKpiHistoryBtn.addEventListener('click', exportKpiHistoryToCsv);
 
 
-            cancelEditBtn.addEventListener('click', resetEndorsementForm);
             cancelLogEditBtn.addEventListener('click', resetLogForm);
             modalCancelBtn.addEventListener('click', hideModal);
             modalConfirmBtn.addEventListener('click', () => onConfirmAction());
@@ -1343,26 +1219,16 @@
                     const snapshot = {
                         id: Date.now(),
                         weekEnding: weekEndingDate,
-                        data: JSON.parse(JSON.stringify(currentKpiData)) // Deep copy
+                        data: JSON.parse(JSON.stringify(currentKpiData))
                     };
                     kpiHistory.push(snapshot);
-                    currentKpiData = initialTeamData.map(d => ({...d})); // Reset with a deep copy
+                    currentKpiData = initialTeamData.map(d => ({...d}));
                     kpiWeekStartDate = new Date().toISOString().slice(0, 10);
                     saveStateToDb();
                     showMessage('Week finalized and KPI data archived!', 'success');
                     hideModal();
                 };
                  showModal('Finalize Week?', 'This will save a permanent snapshot of the current KPI scores and reset the board for the new week.');
-            });
-
-            clearEndorsementsBtn.addEventListener('click', () => {
-                 onConfirmAction = () => {
-                    currentEndorsementData = [];
-                    saveStateToDb();
-                    showMessage('All endorsements cleared!', 'success');
-                    hideModal();
-                };
-                showModal('Clear All Endorsements', 'Are you sure you want to delete all endorsement records for everyone? This is irreversible.');
             });
 
             addLogEntryBtn.addEventListener('click', () => {
@@ -1373,17 +1239,23 @@
                     recruiter: logRecruiterInput.value,
                     roles: logRolesInput.value.trim(),
                     startDate: logStartDateInput.value,
+                    endorsedDate: logEndorsedDateInput.value,
                     endDate: logEndDateInput.value,
                     notes: logNotesInput.value.trim()
                 };
 
                 if (!newEntry.name || !newEntry.client || !newEntry.recruiter || !newEntry.startDate) {
-                    showMessage('Please fill out Name, Client, Recruiter, and Start Date.', 'error');
+                    showMessage('Please fill out Name, Client, Recruiter, and Received Date.', 'error');
+                    return;
+                }
+                
+                if (newEntry.endorsedDate && newEntry.startDate > newEntry.endorsedDate) {
+                    showMessage('Endorsed Date cannot be before Received Date.', 'error');
                     return;
                 }
 
                 if (newEntry.endDate && newEntry.startDate > newEntry.endDate) {
-                    showMessage('End Date cannot be before Start Date.', 'error');
+                    showMessage('End Date cannot be before Received Date.', 'error');
                     return;
                 }
 
@@ -1401,53 +1273,36 @@
                 const newEntryDate = new Date(newEntry.startDate);
                 yearSelect.value = newEntryDate.getFullYear();
                 monthSelect.value = newEntryDate.getMonth();
-                yearSelect.dataset.userModified = false; // Allow auto-jump to latest after adding
+                yearSelect.dataset.userModified = false;
                 
-                updateNewStartersDashboardData();
                 saveStateToDb();
             });
 
-            addEndorsementBtn.addEventListener('click', () => {
-                if (editingId !== null) {
-                    saveEndorsementChanges();
-                } else {
-                    const candidateName = candidateNameInput.value.trim();
-                    const position = positionInput.value.trim();
-                    const clientName = clientNameInput.value.trim();
-                    const recruiterName = recruiterNameInput.value;
-                    const receivedDateStr = receivedDateInput.value;
-                    const endorsedDateStr = endorsedDateInput.value;
-
-                    if (!candidateName || !position || !clientName || !receivedDateStr || !endorsedDateStr || !recruiterName) {
-                        showMessage('Please fill out all fields.', 'error');
-                        return;
-                    }
-                    const receivedDate = new Date(receivedDateStr);
-                    const endorsedDate = new Date(endorsedDateStr);
-                    if (endorsedDate < receivedDate) {
-                        showMessage('Endorsed Date cannot be before Received Date.', 'error');
-                        return;
-                    }
-
-                    const endorsementTime = calculateBusinessDays(receivedDate, endorsedDate);
-
-                    currentEndorsementData.push({
-                        id: Date.now(),
-                        recruiterName,
-                        candidateName,
-                        position,
-                        clientName,
-                        receivedDate: receivedDateStr,
-                        endorsedDate: endorsedDateStr,
-                        endorsementTime
-                    });
-                    
-                    saveStateToDb();
-                    
-                    resetEndorsementForm();
-                    showMessage('Endorsement added successfully!', 'success');
+            monthlyLogTableBody.addEventListener('click', e => {
+                const target = e.target.closest('button');
+                if (!target) return;
+                
+                const id = target.dataset.id;
+                if (target.classList.contains('edit-log-btn')) {
+                    startEditLogEntry(id);
+                } else if (target.classList.contains('delete-log-btn')) {
+                    removeLogEntry(id);
                 }
             });
+
+            kpiHistoryTableBody.addEventListener('click', e => {
+                 const target = e.target.closest('button');
+                if (!target) return;
+                
+                const id = target.dataset.id;
+                 if (target.classList.contains('delete-snapshot-btn')) {
+                    removeKpiSnapshot(id);
+                }
+            });
+        }
+
+        window.onload = () => {
+            main(); // Run the app
         };
     </script>
 </body>

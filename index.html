@@ -9,6 +9,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <!-- Chart.js CDN for charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    
+    <!-- UPDATED: Firebase Compatibility Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -131,7 +137,246 @@
                 <div id="kpis-dashboard">
                     <h2 class="text-xl font-semibold text-center text-gray-600 mb-6">Displaying Live Data For Week Starting: <span id="kpi-week-start-date" class="font-bold text-indigo-600"></span></h2>
                     <div id="kpi-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- KPI cards will be dynamically rendered here -->
+                        <!-- Catherine's Card -->
+                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
+                                <h3 class="text-xl font-bold text-gray-800">Catherine</h3>
+                            </div>
+                            <div class="flex-1 space-y-4">
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Lead Generation</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 10/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Catherine" data-kpi-status="leadGeneration"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Catherine" data-kpi="leadGeneration" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Zoom Interviews</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 10/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Catherine" data-kpi-status="zoomInterviews"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Catherine" data-kpi="zoomInterviews" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Endorsement Candidates</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 5/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Catherine" data-kpi-status="endorsementCandidates"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Catherine" data-kpi="endorsementCandidates" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Jade's Card -->
+                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
+                                <h3 class="text-xl font-bold text-gray-800">Jade</h3>
+                            </div>
+                            <div class="flex-1 space-y-4">
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Lead Generation</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 10/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Jade" data-kpi-status="leadGeneration"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Jade" data-kpi="leadGeneration" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Zoom Interviews</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 10/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Jade" data-kpi-status="zoomInterviews"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Jade" data-kpi="zoomInterviews" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Endorsement Candidates</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 5/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Jade" data-kpi-status="endorsementCandidates"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Jade" data-kpi="endorsementCandidates" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Jewel's Card -->
+                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
+                                <h3 class="text-xl font-bold text-gray-800">Jewel</h3>
+                            </div>
+                            <div class="flex-1 space-y-4">
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Lead Generation</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 10/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Jewel" data-kpi-status="leadGeneration"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Jewel" data-kpi="leadGeneration" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Zoom Interviews</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 10/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Jewel" data-kpi-status="zoomInterviews"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Jewel" data-kpi="zoomInterviews" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Endorsement Candidates</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 5/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Jewel" data-kpi-status="endorsementCandidates"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Jewel" data-kpi="endorsementCandidates" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Marvin's Card -->
+                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
+                                <h3 class="text-xl font-bold text-gray-800">Marvin</h3>
+                            </div>
+                            <div class="flex-1 space-y-4">
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Lead Generation</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 10/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Marvin" data-kpi-status="leadGeneration"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Marvin" data-kpi="leadGeneration" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Zoom Interviews</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 10/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Marvin" data-kpi-status="zoomInterviews"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Marvin" data-kpi="zoomInterviews" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Endorsement Candidates</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 5/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Marvin" data-kpi-status="endorsementCandidates"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Marvin" data-kpi="endorsementCandidates" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Lorenz's Card -->
+                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
+                                <h3 class="text-xl font-bold text-gray-800">Lorenz</h3>
+                            </div>
+                            <div class="flex-1 space-y-4">
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Lead Generation</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 10/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Lorenz" data-kpi-status="leadGeneration"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Lorenz" data-kpi="leadGeneration" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Zoom Interviews</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 10/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Lorenz" data-kpi-status="zoomInterviews"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Lorenz" data-kpi="zoomInterviews" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">Endorsement Candidates</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-500">(Target: 5/wk)</span>
+                                            <div class="w-3 h-3 rounded-full bg-red-500" data-name="Lorenz" data-kpi-status="endorsementCandidates"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Weekly Total:</span>
+                                        <input type="number" value="0" data-name="Lorenz" data-kpi="endorsementCandidates" class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <!-- New Team Summary Chart -->
                     <div class="mt-12 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-4xl mx-auto">
@@ -323,12 +568,7 @@
         </div>
     </div>
     
-    <script type="module">
-        // Import Firebase modules, adding `updateDoc` for live individual field updates
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, setPersistence, browserLocalPersistence, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, setLogLevel, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <script> // UPDATED: Removed type="module"
         // --- DOM Elements (must be accessible globally) ---
         const userInfoDiv = document.getElementById('user-info');
         
@@ -382,7 +622,7 @@
         function main() {
             // --- Firebase Configuration and Initialization ---
              const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-             let app, db, auth;
+             let db, auth;
              try {
                 // Hardcoded Firebase configuration to resolve initialization issues.
                 const firebaseConfig = {
@@ -394,10 +634,10 @@
                     appId: "1:736940004987:web:5fec3950310a7912c7f4de",
                     measurementId: "G-ZWQE1FVHY4"
                 };
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                setLogLevel('debug');
+                // UPDATED: Use compat syntax
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                auth = firebase.auth();
              } catch(e) {
                  console.error("Error initializing Firebase:", e);
                  userInfoDiv.textContent = `Error: Firebase initialization failed. Check configuration.`;
@@ -451,6 +691,16 @@
             let kpiScoresChart, newStartersChart, endorsementTimeChart, historicalKpiChart;
             let editingLogId = null;
 
+            // NEW: Attach listeners for KPI inputs once on page load
+            kpiCardsContainer.querySelectorAll('input[type="number"]').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const name = e.target.dataset.name;
+                    const kpiKey = e.target.dataset.kpi;
+                    const value = parseInt(e.target.value, 10) || 0;
+                    debouncedUpdateKpi(name, kpiKey, value);
+                });
+            });
+
             // --- Firebase Authentication and Data Sync ---
             const connectionTimeout = setTimeout(() => {
                 if (userInfoDiv.textContent === 'Connecting...') {
@@ -459,7 +709,8 @@
                 }
             }, 15000); 
 
-            onAuthStateChanged(auth, async (user) => {
+            // UPDATED: Use compat syntax
+            auth.onAuthStateChanged(async (user) => {
                 clearTimeout(connectionTimeout); 
                 if (user) {
                     userId = user.uid;
@@ -467,11 +718,11 @@
                     userInfoDiv.classList.remove('text-red-500');
                     
                     const docPath = `/artifacts/${appId}/public/data/dashboard-state/main`;
-                    dbDocRef = doc(db, docPath);
+                    dbDocRef = db.doc(docPath); // UPDATED: Use compat syntax
 
-                    onSnapshot(dbDocRef, (doc) => {
+                    dbDocRef.onSnapshot((doc) => { // UPDATED: Use compat syntax
                         let needsSave = false;
-                        if (doc.exists()) {
+                        if (doc.exists) {
                             const data = doc.data();
                             // Ensure the local data structure matches the (potentially new) Firestore structure
                             currentKpiData = data.currentKpiData && Object.keys(data.currentKpiData).length > 0 ? data.currentKpiData : initialTeamData;
@@ -512,11 +763,12 @@
             async function signIn() {
                 if (!auth) return;
                 try {
-                    await setPersistence(auth, browserLocalPersistence);
+                    // UPDATED: Use compat syntax
+                    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
+                        await auth.signInWithCustomToken(__initial_auth_token);
                     } else {
-                        await signInAnonymously(auth);
+                        await auth.signInAnonymously();
                     }
                 } catch (error) {
                     console.error("Authentication failed:", error);
@@ -538,7 +790,7 @@
                         kpiWeekStartDate: kpiWeekStartDate,
                         monthlyLogData: currentMonthlyLogData
                     };
-                    await setDoc(dbDocRef, state);
+                    await dbDocRef.set(state); // UPDATED: Use compat syntax
                 } catch (error) {
                     console.error("Error saving state to Firestore:", error);
                 }
@@ -553,12 +805,21 @@
                 };
             }
 
-            // NEW: Handles live, atomic updates for a single KPI field.
+            // UPDATED: Handles live, atomic updates for a single KPI field using a more robust method.
             async function updateKpiValue(consultantName, kpiKey, value) {
                 if (!dbDocRef) return;
                 try {
-                    const fieldPath = `currentKpiData.${consultantName}.${kpiKey}`;
-                    await updateDoc(dbDocRef, { [fieldPath]: value });
+                    // Using set with merge: true is more robust. It creates the nested
+                    // objects if they don't exist, preventing errors if the document
+                    // has an incomplete structure.
+                    const dataToMerge = {
+                        currentKpiData: {
+                            [consultantName]: {
+                                [kpiKey]: value
+                            }
+                        }
+                    };
+                    await dbDocRef.set(dataToMerge, { merge: true }); // UPDATED: Use compat syntax
                 } catch (error) {
                     console.error("Error updating KPI value:", error);
                     showMessage('Could not save change. Please check connection.', 'error');
@@ -729,57 +990,27 @@
             }
             
             function renderKpiDashboard() {
-                if(kpiWeekStartDateSpan) {
-                   kpiWeekStartDateSpan.textContent = kpiWeekStartDate;
+                if (kpiWeekStartDateSpan) {
+                    kpiWeekStartDateSpan.textContent = kpiWeekStartDate;
                 }
-                // UPDATED: Iterate over the fixed `weeklyConsultants` array to ensure a consistent order.
-                kpiCardsContainer.innerHTML = weeklyConsultants.map(name => {
-                    const member = currentKpiData[name] || { name: name, leadGeneration: 0, zoomInterviews: 0, endorsementCandidates: 0 }; // Fallback for safety
-                    return `
-                    <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
-                        <div class="flex items-center mb-4">
-                            <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
-                            <h3 class="text-xl font-bold text-gray-800">${member.name}</h3>
-                        </div>
-                        <div class="flex-1 space-y-4">
-                            ${Object.keys(kpiWeeklyTargets).map(kpiKey => {
-                                const weeklyValue = member[kpiKey] || 0;
-                                return `
-                                <div class="p-4 bg-gray-50 rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="text-lg font-bold text-gray-800 capitalize flex items-center">
-                                            ${kpiKey.replace(/([A-Z])/g, ' $1')}
-                                        </span>
-                                        <div class="flex items-center space-x-2">
-                                            <span class="text-sm text-gray-500">
-                                                (Target: ${kpiWeeklyTargets[kpiKey]}/wk)
-                                            </span>
-                                            <div class="w-3 h-3 rounded-full ${getKPIStatus(kpiKey, weeklyValue)}"></div>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-semibold">Weekly Total:</span>
-                                        <input
-                                            type="number"
-                                            value="${weeklyValue}"
-                                            data-name="${member.name}"
-                                            data-kpi="${kpiKey}"
-                                            class="w-24 px-2 py-1 text-center border-2 border-gray-200 rounded-md text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors duration-200"
-                                        />
-                                    </div>
-                                </div>
-                            `}).join('')}
-                        </div>
-                    </div>
-                `}).join('');
-                
-                kpiCardsContainer.querySelectorAll('input').forEach(input => {
-                    input.addEventListener('input', (e) => {
-                        const name = e.target.dataset.name;
-                        const kpiKey = e.target.dataset.kpi;
-                        const value = parseInt(e.target.value, 10) || 0;
-                        // UPDATED: Call the debounced update function instead of modifying local state directly.
-                        debouncedUpdateKpi(name, kpiKey, value);
+
+                weeklyConsultants.forEach(name => {
+                    const memberData = currentKpiData[name] || {}; 
+
+                    Object.keys(kpiWeeklyTargets).forEach(kpiKey => {
+                        const value = memberData[kpiKey] || 0;
+
+                        const inputElement = kpiCardsContainer.querySelector(`input[data-name="${name}"][data-kpi="${kpiKey}"]`);
+                        if (inputElement && inputElement.value != value) {
+                            inputElement.value = value;
+                        }
+
+                        const statusElement = kpiCardsContainer.querySelector(`div[data-name="${name}"][data-kpi-status="${kpiKey}"]`);
+                        if (statusElement) {
+                            const statusColor = getKPIStatus(kpiKey, value);
+                            statusElement.className = 'w-3 h-3 rounded-full';
+                            statusElement.classList.add(statusColor);
+                        }
                     });
                 });
             }

@@ -62,6 +62,29 @@
             transform: translate(-50%, -50%);
             z-index: 50;
         }
+        #confetti-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0.7;
+            animation: fall 5s linear infinite;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -95,8 +118,11 @@
                  <button id="admin-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="admin">
                     <i class="fas fa-cogs"></i><span>Admin</span>
                 </button>
-                <button id="reporting-tab" class="tab-button px-6 py-2 rounded-r-full font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="reporting">
+                <button id="reporting-tab" class="tab-button px-6 py-2 font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="reporting">
                     <i class="fas fa-chart-line"></i><span>Reporting</span>
+                </button>
+                <button id="winner-tab" class="tab-button px-6 py-2 rounded-r-full font-semibold bg-white text-gray-700 hover:bg-gray-100 flex items-center space-x-2" data-tab="winner">
+                    <i class="fas fa-trophy"></i><span>Recruiter of the Week</span>
                 </button>
             </div>
 
@@ -107,12 +133,11 @@
                     <div id="kpi-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- KPI cards will be dynamically rendered here -->
                     </div>
-                    <div id="leaderboard-container" class="mt-12">
-                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">This Week's Leaderboard</h2>
-                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-lg mx-auto">
-                            <ul id="leaderboard-list" class="space-y-4">
-                                <!-- Leaderboard list will be injected here -->
-                            </ul>
+                    <!-- New Team Summary Chart -->
+                    <div class="mt-12 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-4xl mx-auto">
+                         <h2 class="text-2xl font-bold text-center text-gray-900 mb-4">Individual KPI Performance</h2>
+                        <div style="height: 350px;">
+                             <canvas id="team-kpi-summary-chart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -159,103 +184,103 @@
 
                 <!-- New Starters Hub Dashboard -->
                 <div id="new-starters-dashboard" class="hidden space-y-8">
-                     <div class="flex justify-center items-center mb-2 space-x-4 bg-white p-4 rounded-full shadow-md max-w-md mx-auto">
-                        <label for="month-select" class="font-semibold text-gray-600">Select Period:</label>
-                        <select id="month-select" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></select>
-                        <select id="year-select" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></select>
-                    </div>
+                      <div class="flex justify-center items-center mb-2 space-x-4 bg-white p-4 rounded-full shadow-md max-w-md mx-auto">
+                          <label for="month-select" class="font-semibold text-gray-600">Select Period:</label>
+                          <select id="month-select" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></select>
+                          <select id="year-select" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></select>
+                      </div>
                     
-                    <div>
-                        <p id="new-starters-note" class="text-center text-sm text-gray-500 mb-6">Dashboard for <strong></strong>. Fallouts are staff leaving within <strong>30 days</strong>.</p>
-                        <div id="new-starters-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- New Starters cards will be dynamically rendered here -->
-                        </div>
-                    </div>
+                      <div>
+                          <p id="new-starters-note" class="text-center text-sm text-gray-500 mb-6">Dashboard for <strong></strong>. Fallouts are staff leaving within <strong>30 days</strong>.</p>
+                          <div id="new-starters-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              <!-- New Starters cards will be dynamically rendered here -->
+                          </div>
+                      </div>
                     
-                    <div id="new-starters-leaderboard-container">
-                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">New Starters Leaderboard</h2>
-                        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-lg mx-auto">
-                            <ul id="new-starters-leaderboard-list" class="space-y-4">
-                                <!-- New starters leaderboard will be injected here -->
-                            </ul>
-                        </div>
-                    </div>
+                      <div id="new-starters-leaderboard-container">
+                          <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">New Starters Leaderboard</h2>
+                          <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-lg mx-auto">
+                              <ul id="new-starters-leaderboard-list" class="space-y-4">
+                                  <!-- New starters leaderboard will be injected here -->
+                              </ul>
+                          </div>
+                      </div>
 
-                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-100">
-                        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Monthly Log & Data Entry</h2>
-                        <!-- Form for new entry -->
-                        <div class="mb-8 p-6 bg-gray-50 rounded-xl border-2 border-dashed">
-                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                                <input id="log-name" type="text" placeholder="Candidate Name" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
-                                <input id="log-client" type="text" placeholder="Client" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
-                                <select id="log-recruiter" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"><option value="" disabled selected>Recruiter</option></select>
-                                <input id="log-roles" type="text" placeholder="Position / Roles" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
+                      <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-100">
+                          <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Monthly Log & Data Entry</h2>
+                          <!-- Form for new entry -->
+                          <div class="mb-8 p-6 bg-gray-50 rounded-xl border-2 border-dashed">
+                               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                                  <input id="log-name" type="text" placeholder="Candidate Name" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
+                                  <input id="log-client" type="text" placeholder="Client" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
+                                  <select id="log-recruiter" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"><option value="" disabled selected>Recruiter</option></select>
+                                  <input id="log-roles" type="text" placeholder="Position / Roles" class="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
                                 
-                                <div><label class="text-sm text-gray-500 block mb-1">Received Date</label><input id="log-start-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
-                                <div><label class="text-sm text-gray-500 block mb-1">Endorsed Date</label><input id="log-endorsed-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
-                                <div><label class="text-sm text-gray-500 block mb-1">End Date (Fallout)</label><input id="log-end-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
+                                  <div><label class="text-sm text-gray-500 block mb-1">Received Date</label><input id="log-start-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
+                                  <div><label class="text-sm text-gray-500 block mb-1">Endorsed Date</label><input id="log-endorsed-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
+                                  <div><label class="text-sm text-gray-500 block mb-1">End Date (Fallout)</label><input id="log-end-date" type="date" class="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500"></div>
                                 
-                                <input id="log-notes" type="text" placeholder="Notes" class="lg:col-span-1 px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
+                                  <input id="log-notes" type="text" placeholder="Notes" class="lg:col-span-1 px-4 py-2 border-2 border-gray-200 rounded-md focus:border-indigo-500">
                                 
-                                <div class="flex items-center space-x-2 lg:col-span-4">
-                                    <button id="add-log-entry-btn" class="flex-grow bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-indigo-700 transition-colors">Add Entry</button>
-                                    <button id="cancel-log-edit-btn" class="hidden bg-gray-500 text-white px-4 py-2 rounded-md font-semibold hover:bg-gray-600 transition-colors">Cancel</button>
-                                </div>
-                            </div>
-                        </div>
+                                  <div class="flex items-center space-x-2 lg:col-span-4">
+                                      <button id="add-log-entry-btn" class="flex-grow bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-indigo-700 transition-colors">Add Entry</button>
+                                      <button id="cancel-log-edit-btn" class="hidden bg-gray-500 text-white px-4 py-2 rounded-md font-semibold hover:bg-gray-600 transition-colors">Cancel</button>
+                                  </div>
+                              </div>
+                          </div>
                         
-                        <div class="flex justify-end mb-4">
-                             <button id="export-csv-btn" class="bg-green-600 text-white px-6 py-2 rounded-md font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
-                                <i class="fas fa-file-csv"></i>
-                                <span>Export to CSV</span>
-                            </button>
-                        </div>
+                          <div class="flex justify-end mb-4">
+                               <button id="export-csv-btn" class="bg-green-600 text-white px-6 py-2 rounded-md font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
+                                  <i class="fas fa-file-csv"></i>
+                                  <span>Export to CSV</span>
+                              </button>
+                          </div>
 
-                        <!-- Table of entries -->
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recruiter</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Received Date</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Endorsed Date</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
-                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="monthly-log-table-body" class="bg-white divide-y divide-gray-200">
-                                    <!-- Log entries will be injected here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                          <!-- Table of entries -->
+                          <div class="overflow-x-auto">
+                              <table class="min-w-full divide-y divide-gray-200">
+                                  <thead class="bg-gray-50">
+                                      <tr>
+                                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recruiter</th>
+                                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Received Date</th>
+                                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Endorsed Date</th>
+                                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
+                                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
+                                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                                          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody id="monthly-log-table-body" class="bg-white divide-y divide-gray-200">
+                                      <!-- Log entries will be injected here -->
+                                  </tbody>
+                              </table>
+                          </div>
+                      </div>
                 </div>
 
                 <!-- Time to Endorse Dashboard -->
                 <div id="time-to-endorse-dashboard" class="hidden">
-                     <div class="max-w-6xl mx-auto space-y-8">
-                        <div class="text-center">
-                             <h2 class="text-3xl font-bold text-gray-900 mb-2">Time to Endorse</h2>
-                             <p class="text-gray-600">This data is automatically calculated from the 'New Starters' log. Weekends are not counted.</p>
-                        </div>
-                        <div class="flex flex-col items-center mb-6 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-sm mx-auto">
-                            <p class="text-lg text-gray-600 mb-2">Team Average Endorsement Time</p>
-                            <span id="average-endorsement-time" class="text-6xl font-extrabold text-indigo-600">0.0 Days</span>
-                        </div>
-                        <div id="recruiter-dashboards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- Recruiter cards will be dynamically rendered here -->
-                        </div>
-                    </div>
+                      <div class="max-w-6xl mx-auto space-y-8">
+                          <div class="text-center">
+                               <h2 class="text-3xl font-bold text-gray-900 mb-2">Time to Endorse</h2>
+                               <p class="text-gray-600">This data is automatically calculated from the 'New Starters' log. Weekends are not counted.</p>
+                          </div>
+                          <div class="flex flex-col items-center mb-6 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-sm mx-auto">
+                              <p class="text-lg text-gray-600 mb-2">Team Average Endorsement Time</p>
+                              <span id="average-endorsement-time" class="text-6xl font-extrabold text-indigo-600">0.0 Days</span>
+                          </div>
+                          <div id="recruiter-dashboards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              <!-- Recruiter cards will be dynamically rendered here -->
+                          </div>
+                      </div>
                 </div>
                 
                 <!-- Reporting Dashboard -->
                 <div id="reporting-dashboard" class="hidden">
                     <div class="max-w-5xl mx-auto space-y-12">
-                         <!-- Historical KPI Scores Chart -->
+                          <!-- Historical KPI Scores Chart -->
                         <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
                             <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Historical Weekly KPI Performance</h3>
                             <canvas id="historical-kpi-chart"></canvas>
@@ -270,10 +295,26 @@
                             <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Monthly New Starters vs. Fallouts</h3>
                             <canvas id="new-starters-chart"></canvas>
                         </div>
-                         <!-- Time to Endorse Chart -->
+                          <!-- Time to Endorse Chart -->
                         <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
                             <h3 class="text-2xl font-bold text-center text-gray-800 mb-4">Average Time to Endorse (Business Days)</h3>
                             <canvas id="endorsement-time-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recruiter of the Week Dashboard -->
+                <div id="winner-dashboard" class="hidden text-center">
+                    <div class="bg-white p-8 rounded-2xl shadow-2xl border border-gray-100 max-w-2xl mx-auto relative overflow-hidden">
+                        <div id="confetti-container"></div>
+                        <div class="relative z-10">
+                            <i class="fas fa-trophy text-7xl text-yellow-400 drop-shadow-lg"></i>
+                            <h2 class="text-4xl font-extrabold text-gray-900 mt-4 mb-2">Recruiter of the Week!</h2>
+                            <p class="text-gray-600 mb-6">Let's give a huge round of applause to this week's top performer!</p>
+                            
+                            <div id="winner-announcement" class="bg-indigo-50 p-6 rounded-xl border-2 border-dashed border-indigo-200">
+                                <!-- Winner info will be injected here -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -283,10 +324,10 @@
     </div>
     
     <script type="module">
-        // Import Firebase modules
+        // Import Firebase modules, adding `updateDoc` for live individual field updates
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, setPersistence, browserLocalPersistence, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, setLogLevel, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- DOM Elements (must be accessible globally) ---
         const userInfoDiv = document.getElementById('user-info');
@@ -301,12 +342,16 @@
         const recruitmentConsultants = ['Catherine', 'Jade', 'Jewel', 'Marvin', 'Lorenz', 'Roxanne', 'Maria', 'Belle'];
         const weeklyConsultants = ['Catherine', 'Jade', 'Jewel', 'Marvin', 'Lorenz'];
 
-        const initialTeamData = weeklyConsultants.map(name => ({
-            name: name,
-            leadGeneration: 0,
-            zoomInterviews: 0,
-            endorsementCandidates: 0,
-        }));
+        // OPTIMIZED: Changed initialTeamData from an array to an object for efficient, atomic updates.
+        const initialTeamData = weeklyConsultants.reduce((acc, name) => {
+            acc[name] = {
+                name: name,
+                leadGeneration: 0,
+                zoomInterviews: 0,
+                endorsementCandidates: 0,
+            };
+            return acc;
+        }, {});
         
         const initialNewStartersData = recruitmentConsultants.map(name => ({
             name: name,
@@ -319,7 +364,6 @@
         const initialKpiHistory = [];
 
         // --- Philippine Holidays for September 2025 ---
-        // No nationwide holidays proclaimed for September 2025 as of now. This can be updated if new holidays are announced.
         const philippineHolidays = []; 
 
         // --- App State ---
@@ -332,33 +376,34 @@
         let dbDocRef; 
         let userId; 
         let onConfirmAction = () => {};
+        let teamKpiSummaryChart; // Chart instance variable
 
         // Main application function
         function main() {
             // --- Firebase Configuration and Initialization ---
-             const firebaseConfig = {
-              apiKey: "AIzaSyC2yY5dAYwQA4IOB5f-fBF_UHNQZseGumY",
-              authDomain: "mployhr-recruitment-dashboard.firebaseapp.com",
-              projectId: "mployhr-recruitment-dashboard",
-              storageBucket: "mployhr-recruitment-dashboard.appspot.com",
-              messagingSenderId: "736940004987",
-              appId: "1:736940004987:web:5fec3950310a7912c7f4de",
-              measurementId: "G-ZWQE1FVHY4"
-            };
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            
-            let app, db, auth;
-            try {
+             const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+             let app, db, auth;
+             try {
+                // Hardcoded Firebase configuration to resolve initialization issues.
+                const firebaseConfig = {
+                    apiKey: "AIzaSyC2yY5dAYwQA4IOB5f-fBF_UHNQZseGumY",
+                    authDomain: "mployhr-recruitment-dashboard.firebaseapp.com",
+                    projectId: "mployhr-recruitment-dashboard",
+                    storageBucket: "mployhr-recruitment-dashboard.appspot.com",
+                    messagingSenderId: "736940004987",
+                    appId: "1:736940004987:web:5fec3950310a7912c7f4de",
+                    measurementId: "G-ZWQE1FVHY4"
+                };
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
                 setLogLevel('debug');
-            } catch(e) {
-                console.error("Error initializing Firebase:", e);
-                userInfoDiv.textContent = `Error: Firebase initialization failed. ${e.message}`;
-                userInfoDiv.classList.add('text-red-500');
-                return; // Stop execution if Firebase fails
-            }
+             } catch(e) {
+                 console.error("Error initializing Firebase:", e);
+                 userInfoDiv.textContent = `Error: Firebase initialization failed. Check configuration.`;
+                 userInfoDiv.classList.add('text-red-500');
+                 return; // Stop execution if Firebase fails
+             }
 
             // --- DOM Elements ---
             const kpisTab = document.getElementById('kpis-tab');
@@ -366,13 +411,14 @@
             const timeToEndorseTab = document.getElementById('time-to-endorse-tab');
             const adminTab = document.getElementById('admin-tab');
             const reportingTab = document.getElementById('reporting-tab');
+            const winnerTab = document.getElementById('winner-tab');
             const kpisDashboard = document.getElementById('kpis-dashboard');
             const newStartersDashboard = document.getElementById('new-starters-dashboard');
             const timeToEndorseDashboard = document.getElementById('time-to-endorse-dashboard');
             const adminDashboard = document.getElementById('admin-dashboard');
             const reportingDashboard = document.getElementById('reporting-dashboard');
+            const winnerDashboard = document.getElementById('winner-dashboard');
             const kpiCardsContainer = document.getElementById('kpi-cards-container');
-            const leaderboardList = document.getElementById('leaderboard-list');
             const newStartersCardsContainer = document.getElementById('new-starters-cards-container');
             const newStartersLeaderboardList = document.getElementById('new-starters-leaderboard-list');
             const averageTimeSpan = document.getElementById('average-endorsement-time');
@@ -427,7 +473,8 @@
                         let needsSave = false;
                         if (doc.exists()) {
                             const data = doc.data();
-                            currentKpiData = data.currentKpiData || initialTeamData;
+                            // Ensure the local data structure matches the (potentially new) Firestore structure
+                            currentKpiData = data.currentKpiData && Object.keys(data.currentKpiData).length > 0 ? data.currentKpiData : initialTeamData;
                             kpiHistory = data.kpiHistory || initialKpiHistory;
                             kpiWeekStartDate = data.kpiWeekStartDate || new Date().toISOString().slice(0, 10);
                             currentMonthlyLogData = data.monthlyLogData || initialMonthlyLogData;
@@ -446,16 +493,8 @@
                                 needsSave = true;
                             }
 
-                            if (currentMonthlyLogData.length > 0 && !yearSelect.dataset.userModified) {
-                                const mostRecentEntry = currentMonthlyLogData.reduce((latest, entry) => {
-                                    return new Date(entry.startDate) > new Date(latest.startDate) ? entry : latest;
-                                });
-                                const mostRecentDate = new Date(mostRecentEntry.startDate);
-                                yearSelect.value = mostRecentDate.getFullYear();
-                                monthSelect.value = mostRecentDate.getMonth();
-                            }
                         } else {
-                            needsSave = true;
+                            needsSave = true; // Document doesn't exist, create it on first load.
                         }
                         
                         if (needsSave) {
@@ -486,6 +525,7 @@
                 }
             }
 
+            // Handles full state saves, like initialization or major changes (e.g., finalize week)
             async function saveStateToDb() {
                 if (!dbDocRef) {
                     console.error("Firestore document reference not initialized.");
@@ -504,8 +544,6 @@
                 }
             }
 
-            const debouncedSaveStateToDb = debounce(saveStateToDb, 500);
-
             function debounce(func, delay) {
                 let timeout;
                 return function(...args) {
@@ -514,6 +552,21 @@
                     timeout = setTimeout(() => func.apply(context, args), delay);
                 };
             }
+
+            // NEW: Handles live, atomic updates for a single KPI field.
+            async function updateKpiValue(consultantName, kpiKey, value) {
+                if (!dbDocRef) return;
+                try {
+                    const fieldPath = `currentKpiData.${consultantName}.${kpiKey}`;
+                    await updateDoc(dbDocRef, { [fieldPath]: value });
+                } catch (error) {
+                    console.error("Error updating KPI value:", error);
+                    showMessage('Could not save change. Please check connection.', 'error');
+                }
+            }
+
+            const debouncedUpdateKpi = debounce(updateKpiValue, 500);
+
 
             function showMessage(message, type = 'info') {
                 const messageBox = document.createElement('div');
@@ -638,8 +691,9 @@
                 timeToEndorseDashboard.classList.add('hidden');
                 adminDashboard.classList.add('hidden');
                 reportingDashboard.classList.add('hidden');
+                winnerDashboard.classList.add('hidden');
 
-                const tabs = [kpisTab, newStartersTab, timeToEndorseTab, adminTab, reportingTab];
+                const tabs = [kpisTab, newStartersTab, timeToEndorseTab, adminTab, reportingTab, winnerTab];
                 tabs.forEach(tab => {
                     tab.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
                     tab.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
@@ -662,6 +716,10 @@
                     reportingDashboard.classList.remove('hidden');
                     renderReportingDashboard(); 
                     activeTab = reportingTab;
+                } else if (tabId === 'winner') {
+                    winnerDashboard.classList.remove('hidden');
+                    renderRecruiterOfTheWeekDashboard();
+                    activeTab = winnerTab;
                 }
                 
                 if (activeTab) {
@@ -674,7 +732,10 @@
                 if(kpiWeekStartDateSpan) {
                    kpiWeekStartDateSpan.textContent = kpiWeekStartDate;
                 }
-                kpiCardsContainer.innerHTML = currentKpiData.map(member => `
+                // UPDATED: Iterate over the fixed `weeklyConsultants` array to ensure a consistent order.
+                kpiCardsContainer.innerHTML = weeklyConsultants.map(name => {
+                    const member = currentKpiData[name] || { name: name, leadGeneration: 0, zoomInterviews: 0, endorsementCandidates: 0 }; // Fallback for safety
+                    return `
                     <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col card-container">
                         <div class="flex items-center mb-4">
                             <i class="fas fa-user-circle text-indigo-600 mr-2 text-2xl"></i>
@@ -710,15 +771,15 @@
                             `}).join('')}
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
                 
                 kpiCardsContainer.querySelectorAll('input').forEach(input => {
                     input.addEventListener('input', (e) => {
                         const name = e.target.dataset.name;
                         const kpiKey = e.target.dataset.kpi;
                         const value = parseInt(e.target.value, 10) || 0;
-                        currentKpiData = currentKpiData.map(m => m.name === name ? { ...m, [kpiKey]: value } : m);
-                        debouncedSaveStateToDb(); 
+                        // UPDATED: Call the debounced update function instead of modifying local state directly.
+                        debouncedUpdateKpi(name, kpiKey, value);
                     });
                 });
             }
@@ -832,8 +893,8 @@
                     `
                 }).join('');
                  if (filteredLog.length === 0) {
-                     monthlyLogTableBody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-gray-500">No entries for ${monthName} ${selectedYear}. Add one above to get started.</td></tr>`;
-                }
+                      monthlyLogTableBody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-gray-500">No entries for ${monthName} ${selectedYear}. Add one above to get started.</td></tr>`;
+                 }
             }
             
             function exportDataToCsv() {
@@ -907,7 +968,7 @@
                 };
 
                 kpiHistory.forEach(snapshot => {
-                    snapshot.data.forEach(consultantData => {
+                    Object.values(snapshot.data).forEach(consultantData => { // UPDATED to handle object
                         const rowData = [
                             snapshot.weekEnding,
                             consultantData.name,
@@ -966,24 +1027,135 @@
                     `;
                 }).join('');
             }
+            
+            // New function to render the team summary chart
+            function renderTeamKpiSummaryChart() {
+                const ctx = document.getElementById('team-kpi-summary-chart').getContext('2d');
+                const kpiKeys = Object.keys(kpiWeeklyTargets);
+                const labels = kpiKeys.map(key => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
+                
+                // Define a color palette for team members
+                const colors = [
+                    'rgba(59, 130, 246, 0.7)',
+                    'rgba(16, 185, 129, 0.7)',
+                    'rgba(249, 115, 22, 0.7)',
+                    'rgba(107, 114, 128, 0.7)',
+                    'rgba(139, 92, 246, 0.7)',
+                    'rgba(239, 68, 68, 0.7)',
+                    'rgba(234, 179, 8, 0.7)',
+                    'rgba(20, 184, 166, 0.7)'
+                ];
 
-            function renderLeaderboard() {
-                const sortedKpis = [...currentKpiData].sort((a, b) => calculateScore(b) - calculateScore(a));
-                leaderboardList.innerHTML = sortedKpis.map((member, index) => `
-                    <li class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${index < 3 ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-gray-50'}">
-                        <div class="flex items-center">
-                            <span class="font-extrabold text-xl mr-4 ${index === 0 ? 'text-indigo-600' : index === 1 ? 'text-indigo-500' : index === 2 ? 'text-indigo-400' : 'text-gray-400'}">#${index + 1}</span>
-                            <span class="font-semibold text-gray-700">${member.name}</span>
-                        </div>
-                        <div class="flex items-center">
-                            ${index < 3 ? `<i class="fas fa-award w-5 h-5 mr-2 ${index === 0 ? 'text-yellow-500' : 'text-gray-400'}"></i>` : ''}
-                            <span class="text-xl font-bold text-gray-900">
-                                ${calculateScore(member).toFixed(0)}%
-                            </span>
-                        </div>
-                    </li>
-                `).join('');
+                const borderColors = [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(249, 115, 22, 1)',
+                    'rgba(107, 114, 128, 1)',
+                    'rgba(139, 92, 246, 1)',
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(234, 179, 8, 1)',
+                    'rgba(20, 184, 166, 1)'
+                ];
+
+                const datasets = Object.values(currentKpiData).map((member, index) => {
+                    return {
+                        label: member.name,
+                        data: kpiKeys.map(key => member[key] || 0),
+                        backgroundColor: colors[index % colors.length],
+                        borderColor: borderColors[index % borderColors.length],
+                        borderWidth: 1,
+                        borderRadius: 5,
+                    };
+                });
+                
+                if (teamKpiSummaryChart) {
+                    teamKpiSummaryChart.destroy();
+                }
+
+                teamKpiSummaryChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: datasets // Use the newly created datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#e5e7eb' }
+                            },
+                             x: {
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                        }
+                    }
+                });
             }
+
+            function renderRecruiterOfTheWeekDashboard() {
+                const winnerAnnouncement = document.getElementById('winner-announcement');
+                const kpiDataArray = Object.values(currentKpiData);
+
+                if (kpiDataArray.length === 0) {
+                    winnerAnnouncement.innerHTML = `<p class="text-gray-500">No KPI data available for this week.</p>`;
+                    return;
+                }
+
+                let topScore = -1;
+                let winners = [];
+
+                kpiDataArray.forEach(member => {
+                    const score = calculateScore(member);
+                    if (score > topScore) {
+                        topScore = score;
+                        winners = [member];
+                    } else if (score === topScore) {
+                        winners.push(member);
+                    }
+                });
+
+                if (topScore <= 0) {
+                    winnerAnnouncement.innerHTML = `<p class="text-2xl font-bold text-gray-700">No scores recorded yet!</p><p class="text-gray-500 mt-2">The week is young. Go for it, team!</p>`;
+                    return;
+                }
+                
+                let winnerHtml = winners.map(winner => `
+                    <div class="mb-4">
+                        <h3 class="text-5xl font-extrabold text-indigo-600">${winner.name}</h3>
+                        <p class="font-bold text-2xl text-yellow-500">${topScore.toFixed(1)}%</p>
+                        <div class="mt-4 flex justify-center space-x-4 text-left">
+                             ${Object.keys(kpiWeeklyTargets).map(kpiKey => `
+                                <div class="bg-white p-3 rounded-lg shadow-sm">
+                                    <p class="text-xs text-gray-500 uppercase">${kpiKey.replace(/([A-Z])/g, ' $1')}</p>
+                                    <p class="text-2xl font-bold text-gray-800">${winner[kpiKey] || 0}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('<hr class="my-4 border-indigo-100">');
+                
+                winnerAnnouncement.innerHTML = winnerHtml;
+
+                // Trigger confetti
+                const confettiContainer = document.getElementById('confetti-container');
+                confettiContainer.innerHTML = '';
+                for (let i = 0; i < 100; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.animationDelay = `${Math.random() * 5}s`;
+                    confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    confettiContainer.appendChild(confetti);
+                }
+            }
+
 
             function renderReportingDashboard() {
                 if (kpiScoresChart) kpiScoresChart.destroy();
@@ -993,9 +1165,10 @@
 
                 const historicalLabels = kpiHistory.map(snapshot => snapshot.weekEnding);
                 const historicalData = kpiHistory.map(snapshot => {
-                    if (snapshot.data.length === 0) return 0;
-                    const totalScore = snapshot.data.reduce((sum, member) => sum + calculateScore(member), 0);
-                    return totalScore / snapshot.data.length;
+                    const dataAsArray = Object.values(snapshot.data);
+                    if (dataAsArray.length === 0) return 0;
+                    const totalScore = dataAsArray.reduce((sum, member) => sum + calculateScore(member), 0);
+                    return totalScore / dataAsArray.length;
                 });
 
                 const historicalKpiData = {
@@ -1015,7 +1188,7 @@
                 });
 
 
-                const kpiScores = currentKpiData.map(member => calculateScore(member));
+                const kpiScores = Object.values(currentKpiData).map(member => calculateScore(member));
                 const kpiScoresData = {
                     labels: weeklyConsultants,
                     datasets: [{
@@ -1070,9 +1243,10 @@
             function renderAdminDashboard() {
                 const sortedHistory = [...kpiHistory].sort((a,b) => new Date(b.weekEnding) - new Date(a.weekEnding));
                 kpiHistoryTableBody.innerHTML = sortedHistory.map(snapshot => {
-                     if (snapshot.data.length === 0) return '';
-                     const totalScore = snapshot.data.reduce((sum, member) => sum + calculateScore(member), 0);
-                     const avgScore = totalScore / snapshot.data.length;
+                     const dataAsArray = Object.values(snapshot.data);
+                     if (dataAsArray.length === 0) return '';
+                       const totalScore = dataAsArray.reduce((sum, member) => sum + calculateScore(member), 0);
+                       const avgScore = totalScore / dataAsArray.length;
                     return `
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${snapshot.weekEnding}</td>
@@ -1091,12 +1265,15 @@
 
             function renderAllDashboards() {
                 renderKpiDashboard();
-                renderLeaderboard();
+                renderTeamKpiSummaryChart(); // New chart render call
                 updateNewStartersDashboardData();
                 updateEndorsementDataFromLog();
                 renderNewStartersDashboard();
                 renderTimeToEndorseDashboard();
                 renderAdminDashboard();
+                if (document.getElementById('winner-dashboard').classList.contains('hidden') === false) {
+                     renderRecruiterOfTheWeekDashboard();
+                }
                 if (!reportingDashboard.classList.contains('hidden')) {
                     renderReportingDashboard();
                 }
@@ -1196,6 +1373,7 @@
             timeToEndorseTab.addEventListener('click', () => switchTab('time-to-endorse'));
             adminTab.addEventListener('click', () => switchTab('admin'));
             reportingTab.addEventListener('click', () => switchTab('reporting'));
+            winnerTab.addEventListener('click', () => switchTab('winner'));
 
             monthSelect.addEventListener('change',() => {
                 yearSelect.dataset.userModified = true;
@@ -1222,7 +1400,8 @@
                         data: JSON.parse(JSON.stringify(currentKpiData))
                     };
                     kpiHistory.push(snapshot);
-                    currentKpiData = initialTeamData.map(d => ({...d}));
+                    // UPDATED: Reset KPI data using a deep copy of the initial object structure
+                    currentKpiData = JSON.parse(JSON.stringify(initialTeamData));
                     kpiWeekStartDate = new Date().toISOString().slice(0, 10);
                     saveStateToDb();
                     showMessage('Week finalized and KPI data archived!', 'success');
@@ -1275,7 +1454,7 @@
                 monthSelect.value = newEntryDate.getMonth();
                 yearSelect.dataset.userModified = false;
                 
-                saveStateToDb();
+                saveStateToDb(); // This saves the entire log, which is fine for this action
             });
 
             monthlyLogTableBody.addEventListener('click', e => {
